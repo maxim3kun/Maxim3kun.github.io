@@ -10,7 +10,7 @@
   <meta property="og:url"         content="https://www.maximegpt.com/">
   <meta property="og:title"       content="MaximeGPT — Your Discord Partner">
   <meta property="og:description" content="One bot. Endless possibilities. Games, music, AI, radio, birthdays and much more.">
-  <meta property="og:image"       content="https://www.maximegpt.com/avatar.jpeg">
+  <meta property="og:image"       content="https://www.maximegpt.com/banner1.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="theme-color"        content="#7c3aed">
@@ -270,6 +270,22 @@
     }
 
     /* ── STATS BAR ── */
+    /* ── RANDOM BANNER ── */
+    .hero-banner {
+      width: 100%; max-width: 900px;
+      margin: 2.5rem auto 0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(124,58,237,.35), 0 0 120px rgba(124,58,237,.12);
+      border: 1px solid rgba(168,85,247,.2);
+      opacity: 0; animation: fadeUp .5s .2s forwards;
+    }
+    .hero-banner img {
+      width: 100%; display: block;
+      transition: transform .4s ease;
+    }
+    .hero-banner:hover img { transform: scale(1.02); }
+
     .stats-bar {
       position: relative; z-index: 1;
       background: rgba(255,255,255,.03);
@@ -574,6 +590,13 @@
       <span>scroll</span>
     </div>
   </section>
+
+  <!-- RANDOM BANNER -->
+  <div style="padding: 0 1.5rem;">
+    <div class="hero-banner" id="hero-banner">
+      <img id="banner-img" src="banner1.png" alt="MaximeGPT Banner">
+    </div>
+  </div>
 
   <!-- STATS BAR -->
   <div class="stats-bar reveal">
@@ -946,6 +969,13 @@
     }
 
     setLang('en');
+
+    /* ── RANDOM BANNER ── */
+    (function() {
+      const banners = ['banner1.png', 'banner2.png'];
+      const pick = banners[Math.floor(Math.random() * banners.length)];
+      document.getElementById('banner-img').src = pick;
+    })();
 
     /* ── LOADER DISMISS ── */
     (function() {
