@@ -66,31 +66,91 @@
         radial-gradient(ellipse 40% 40% at 50% 50%, rgba(88,101,242,.08) 0%, transparent 70%);
     }
 
-    /* ── LANG SWITCHER ── */
+    /* ── NAVBAR ── */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      display: flex; align-items: center; gap: 1rem;
+      padding: .7rem 1.5rem;
+      background: rgba(8,6,20,.8); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(168,85,247,.1);
+    }
+    .nav-brand {
+      font-family: 'Bebas Neue', 'Arial Black', sans-serif; font-size: 1.3rem;
+      letter-spacing: .08em;
+      background: linear-gradient(135deg, #fff, var(--purple-neon));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      text-decoration: none; flex-shrink: 0;
+    }
+    #nav-links {
+      display: flex; gap: .2rem; margin-left: .5rem; flex: 1;
+    }
+    .nav-link {
+      font-family: 'Rajdhani', sans-serif; font-size: .82rem; font-weight: 600;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--grey); text-decoration: none;
+      padding: .3rem .7rem; border-radius: 6px;
+      transition: color .2s, background .2s;
+    }
+    .nav-link:hover { color: var(--white); background: rgba(168,85,247,.12); }
+    .nav-link.active { color: var(--purple-neon); }
+    #nav-toggle {
+      display: none; background: none; border: none; color: var(--white);
+      font-size: 1.3rem; cursor: pointer; margin-left: auto; padding: .2rem .5rem;
+    }
     #lang-bar {
-      position: fixed; top: 1.1rem; right: 1.4rem; z-index: 200;
-      display: flex; gap: .45rem;
+      display: flex; gap: .4rem; margin-left: auto; flex-shrink: 0;
     }
     .lang-btn {
       background: rgba(20,10,40,.7);
-      backdrop-filter: blur(8px);
       border: 1px solid rgba(168,85,247,.3);
-      color: var(--grey); padding: .3rem .8rem; border-radius: 999px;
-      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .82rem;
-      cursor: pointer; transition: all .2s;
-      letter-spacing: .06em;
+      color: var(--grey); padding: .25rem .7rem; border-radius: 999px;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .78rem;
+      cursor: pointer; transition: all .2s; letter-spacing: .06em;
     }
     .lang-btn:hover { color: var(--white); border-color: var(--purple-bright); background: rgba(124,58,237,.3); }
-    .lang-btn.active {
-      background: var(--purple-glow); border-color: var(--purple-bright);
-      color: #fff; box-shadow: 0 0 12px rgba(124,58,237,.5);
+    .lang-btn.active { background: var(--purple-glow); border-color: var(--purple-bright); color: #fff; box-shadow: 0 0 10px rgba(124,58,237,.5); }
+    @media (max-width: 640px) {
+      #nav-toggle { display: block; }
+      #nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0;
+        flex-direction: column; background: rgba(8,6,20,.96); border-bottom: 1px solid rgba(168,85,247,.15);
+        padding: .8rem 1.5rem 1rem; gap: .1rem; }
+      #nav-links.open { display: flex; }
+      #lang-bar { margin-left: 0; }
     }
+
+    /* ── FAQ ── */
+    #faq { padding: 5rem 1.5rem; max-width: 820px; margin: 0 auto; }
+    .faq-item {
+      border: 1px solid rgba(168,85,247,.15); border-radius: 12px;
+      margin-bottom: .8rem; overflow: hidden;
+      transition: border-color .2s;
+    }
+    .faq-item:hover { border-color: rgba(168,85,247,.35); }
+    .faq-q {
+      width: 100%; background: rgba(255,255,255,.03);
+      border: none; cursor: pointer; padding: 1.1rem 1.3rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600;
+      color: var(--white); text-align: left; gap: 1rem;
+      transition: background .2s;
+    }
+    .faq-q:hover { background: rgba(168,85,247,.08); }
+    .faq-q .faq-icon { color: var(--purple-neon); font-size: 1.1rem; flex-shrink: 0; transition: transform .3s; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s ease, padding .35s ease;
+      padding: 0 1.3rem;
+    }
+    .faq-item.open .faq-a { max-height: 300px; padding: 0 1.3rem 1.1rem; }
+    .faq-a p { font-size: .875rem; color: var(--grey); line-height: 1.7; }
+    .faq-a code { background: rgba(168,85,247,.15); padding: .1rem .4rem; border-radius: 4px; font-size: .82rem; color: var(--purple-neon); }
 
     /* ── HERO ── */
     #hero {
       position: relative; min-height: 100vh;
       display: flex; align-items: center; justify-content: center;
-      overflow: hidden; padding: 2rem 1.5rem;
+      overflow: hidden; padding: 5rem 1.5rem 2rem;
     }
 
     /* Animated grid lines */
@@ -589,12 +649,22 @@
   <!-- PARTICLE CANVAS -->
   <canvas id="particle-canvas"></canvas>
 
-  <!-- LANG BAR -->
-  <div id="lang-bar">
-    <button class="lang-btn active" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" onclick="setLang('fr')">FR</button>
-    <button class="lang-btn" onclick="setLang('es')">ES</button>
-  </div>
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <a class="nav-brand" href="#hero">MaximeGPT</a>
+    <button id="nav-toggle" onclick="toggleNav()" aria-label="Menu">☰</button>
+    <div id="nav-links">
+      <a class="nav-link" href="#hero"     data-i18n="nav_home">Home</a>
+      <a class="nav-link" href="#features" data-i18n="nav_features">Features</a>
+      <a class="nav-link" href="#commands" data-i18n="nav_commands">Commands</a>
+      <a class="nav-link" href="#faq"      data-i18n="nav_faq">FAQ</a>
+    </div>
+    <div id="lang-bar">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" onclick="setLang('es')">ES</button>
+    </div>
+  </nav>
 
   <!-- HERO -->
   <section id="hero">
@@ -813,6 +883,15 @@
 
   <div class="divider"></div>
 
+  <!-- FAQ -->
+  <section id="faq">
+    <p class="section-label reveal" data-i18n="faq_label">FAQ</p>
+    <h2 class="section-title reveal" data-i18n="faq_title">Frequently Asked <span>Questions</span></h2>
+    <div id="faq-list" style="margin-top:2.5rem;"></div>
+  </section>
+
+  <div class="divider"></div>
+
   <!-- FOOTER -->
   <footer>
     <div class="footer-top">
@@ -972,6 +1051,8 @@
         c_qstats:"Statistics 📊", c_qremind:"Enable reminders 📍", c_qsched:"Schedule ⏰", c_qreset:"Reset",
         c_aibattle:"AI battle on a topic 🥊", c_aistop:"Stop the battle", c_credits:"Credits ✨",
         c_helpfr:"Help in French or Spanish", c_admin:"Moderator commands 🔧", c_setup:"API keys & secrets",
+        nav_home:"Home", nav_features:"Features", nav_commands:"Commands", nav_faq:"FAQ",
+        faq_label:"FAQ", faq_title:"Frequently Asked <span>Questions</span>",
         footer_sub:"Your Discord Partner. One bot. Endless possibilities.",
         footer_community:"Community", footer_legal_title:"Legal",
         footer_support:"Support Server", footer_portal:"Assistance Portal",
@@ -1012,6 +1093,8 @@
         c_qstats:"Statistiques 📊", c_qremind:"Activer les rappels 📍", c_qsched:"Planifier ⏰", c_qreset:"Réinitialiser",
         c_aibattle:"Bataille IA sur un sujet 🥊", c_aistop:"Stopper la bataille", c_credits:"Crédits ✨",
         c_helpfr:"Aide en français ou espagnol", c_admin:"Commandes modérateur 🔧", c_setup:"Clés API & secrets",
+        nav_home:"Accueil", nav_features:"Fonctionnalités", nav_commands:"Commandes", nav_faq:"FAQ",
+        faq_label:"FAQ", faq_title:"Questions <span>fréquentes</span>",
         footer_sub:"Votre partenaire Discord. Un bot. Des possibilités infinies.",
         footer_community:"Communauté", footer_legal_title:"Légal",
         footer_support:"Serveur de support", footer_portal:"Portail d'assistance",
@@ -1052,6 +1135,8 @@
         c_qstats:"Estadísticas 📊", c_qremind:"Activar recordatorios 📍", c_qsched:"Programar ⏰", c_qreset:"Reiniciar",
         c_aibattle:"Batalla IA sobre un tema 🥊", c_aistop:"Detener la batalla", c_credits:"Créditos ✨",
         c_helpfr:"Ayuda en francés o español", c_admin:"Comandos de moderador 🔧", c_setup:"Claves API & secretos",
+        nav_home:"Inicio", nav_features:"Funciones", nav_commands:"Comandos", nav_faq:"FAQ",
+        faq_label:"FAQ", faq_title:"Preguntas <span>frecuentes</span>",
         footer_sub:"Tu compañero de Discord. Un bot. Posibilidades infinitas.",
         footer_community:"Comunidad", footer_legal_title:"Legal",
         footer_support:"Servidor de soporte", footer_portal:"Portal de asistencia",
@@ -1071,6 +1156,7 @@
         const key = el.getAttribute('data-i18n');
         if (t[key] !== undefined) el.innerHTML = t[key];
       });
+      if (typeof buildFaq === 'function') buildFaq(lang);
     }
 
     setLang('en');
@@ -1098,24 +1184,21 @@
              <h3>Contacto</h3><p>Para cualquier pregunta: <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
       },
       privacy: {
-        en: `<h3>Data Collected</h3><p>MaximeGPT may collect Discord user IDs, server IDs, message content (only when commands are used), and birthday dates voluntarily provided by users.</p>
-             <h3>Use of Data</h3><p>Collected data is used solely to operate bot features (reminders, birthday tracking, quest system, etc.). No data is sold or shared with third parties.</p>
-             <h3>Data Retention</h3><p>Data is kept as long as necessary for the proper functioning of the bot. You may request deletion at any time by contacting us.</p>
-             <h3>Security</h3><p>We take reasonable steps to protect your data, but no system is 100% secure. Use the bot at your own risk.</p>
-             <h3>Your Rights</h3><p>You may request access to, correction of, or deletion of your data at any time by writing to <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a>.</p>
-             <h3>Contact</h3><p><a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
-        fr: `<h3>Données collectées</h3><p>MaximeGPT peut collecter les identifiants Discord des utilisateurs, les identifiants de serveur, le contenu des messages (uniquement lors de l'utilisation des commandes), et les dates d'anniversaire fournies volontairement par les utilisateurs.</p>
-             <h3>Utilisation des données</h3><p>Les données collectées servent uniquement au fonctionnement des fonctionnalités du bot (rappels, suivi d'anniversaires, système de quêtes, etc.). Aucune donnée n'est vendue ni partagée avec des tiers.</p>
-             <h3>Conservation des données</h3><p>Les données sont conservées le temps nécessaire au bon fonctionnement du bot. Vous pouvez demander leur suppression à tout moment en nous contactant.</p>
-             <h3>Sécurité</h3><p>Nous prenons des mesures raisonnables pour protéger vos données, mais aucun système n'est sécurisé à 100%. Utilisez le bot à vos propres risques.</p>
-             <h3>Vos droits</h3><p>Vous pouvez demander l'accès, la rectification ou la suppression de vos données à tout moment en écrivant à <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a>.</p>
-             <h3>Contact</h3><p><a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
-        es: `<h3>Datos recopilados</h3><p>MaximeGPT puede recopilar IDs de usuario de Discord, IDs de servidor, contenido de mensajes (solo cuando se usan comandos) y fechas de cumpleaños proporcionadas voluntariamente por los usuarios.</p>
-             <h3>Uso de datos</h3><p>Los datos recopilados se utilizan únicamente para operar las funciones del bot (recordatorios, seguimiento de cumpleaños, sistema de misiones, etc.). No se venden ni comparten datos con terceros.</p>
-             <h3>Retención de datos</h3><p>Los datos se conservan el tiempo necesario para el correcto funcionamiento del bot. Puedes solicitar su eliminación en cualquier momento contactándonos.</p>
-             <h3>Seguridad</h3><p>Tomamos medidas razonables para proteger tus datos, pero ningún sistema es 100% seguro. Usa el bot bajo tu propio riesgo.</p>
-             <h3>Tus derechos</h3><p>Puedes solicitar acceso, corrección o eliminación de tus datos en cualquier momento escribiendo a <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a>.</p>
-             <h3>Contacto</h3><p><a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
+        en: `<h3>Data Collected</h3><p>MaximeGPT collects only what is strictly necessary: Discord user IDs, server IDs, birthday dates voluntarily provided, and quest/level progress. Message content is never stored — it is processed in real time only when a command is triggered.</p>
+             <h3>How Your Data is Protected</h3><p>All data is stored in a <strong>MongoDB database with end-to-end encryption</strong>. An encryption key protects your data at rest, making it unreadable even in the unlikely event of unauthorized access. No plain-text sensitive data is ever stored.</p>
+             <h3>Third-Party Services</h3><p>The bot uses trusted external APIs to power its features: <strong>Groq</strong> (AI conversations), <strong>Suno AI</strong> (music generation), <strong>HuggingFace</strong> (image generation), and <strong>Audd</strong> (song recognition). These services process only the specific request and do not retain user data.</p>
+             <h3>Data Retention</h3><p>Your data is kept only as long as needed to operate the features you use. You can request full deletion at any time.</p>
+             <h3>Your Rights</h3><p>You have the right to access, correct, or delete your data. Contact us at <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a> and we will respond within 72 hours.</p>`,
+        fr: `<h3>Données collectées</h3><p>MaximeGPT collecte uniquement le strict nécessaire : les identifiants Discord des utilisateurs et serveurs, les dates d'anniversaire fournies volontairement, et la progression des quêtes/niveaux. Le contenu des messages n'est jamais stocké — il est traité en temps réel uniquement lors de l'utilisation d'une commande.</p>
+             <h3>Protection de vos données</h3><p>Toutes les données sont stockées dans une <strong>base de données MongoDB avec chiffrement de bout en bout</strong>. Une clé de chiffrement protège vos données au repos, les rendant illisibles même en cas d'accès non autorisé. Aucune donnée sensible n'est jamais stockée en clair.</p>
+             <h3>Services tiers</h3><p>Le bot utilise des API externes de confiance pour ses fonctionnalités : <strong>Groq</strong> (conversations IA), <strong>Suno AI</strong> (génération musicale), <strong>HuggingFace</strong> (génération d'images), et <strong>Audd</strong> (reconnaissance musicale). Ces services traitent uniquement la requête spécifique et ne conservent pas les données utilisateurs.</p>
+             <h3>Conservation des données</h3><p>Vos données sont conservées uniquement le temps nécessaire au fonctionnement des fonctionnalités que vous utilisez. Vous pouvez demander leur suppression complète à tout moment.</p>
+             <h3>Vos droits</h3><p>Vous avez le droit d'accéder, corriger ou supprimer vos données. Contactez-nous à <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a> et nous répondrons sous 72h.</p>`,
+        es: `<h3>Datos recopilados</h3><p>MaximeGPT recopila solo lo estrictamente necesario: IDs de usuario y servidor de Discord, fechas de cumpleaños proporcionadas voluntariamente y progreso de misiones/niveles. El contenido de los mensajes nunca se almacena — se procesa en tiempo real únicamente cuando se usa un comando.</p>
+             <h3>Cómo se protegen tus datos</h3><p>Todos los datos se almacenan en una <strong>base de datos MongoDB con cifrado de extremo a extremo</strong>. Una clave de cifrado protege tus datos en reposo, haciéndolos ilegibles incluso en caso de acceso no autorizado. Nunca se almacenan datos sensibles en texto plano.</p>
+             <h3>Servicios de terceros</h3><p>El bot utiliza APIs externas de confianza para sus funciones: <strong>Groq</strong> (conversaciones IA), <strong>Suno AI</strong> (generación musical), <strong>HuggingFace</strong> (generación de imágenes) y <strong>Audd</strong> (reconocimiento musical). Estos servicios solo procesan la solicitud específica y no conservan datos de usuario.</p>
+             <h3>Retención de datos</h3><p>Tus datos se conservan solo el tiempo necesario para las funciones que utilizas. Puedes solicitar la eliminación completa en cualquier momento.</p>
+             <h3>Tus derechos</h3><p>Tienes derecho a acceder, corregir o eliminar tus datos. Contáctanos en <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a> y responderemos en 72 horas.</p>`,
       },
       bugs: {
         en: `<span class="badge-free">0 € — Free Program</span>
@@ -1135,6 +1218,87 @@
              <h3>Recompensa</h3><p>No se ofrece compensación económica. Los contribuyentes pueden recibir un rol especial en nuestro servidor de Discord como agradecimiento.</p>`,
       },
     };
+
+    /* ── FAQ ── */
+    const faqData = {
+      en: [
+        { q:"Is MaximeGPT free?", a:"Yes, completely free. No subscription, no hidden fees. Just add the bot to your server and use all features." },
+        { q:"How do I add MaximeGPT to my server?", a:"Click the <strong>Add to Server</strong> button at the top of this page. You need to have the 'Manage Server' permission on your Discord server." },
+        { q:"What AI does the bot use?", a:"MaximeGPT uses <strong>Groq</strong> (LLaMA) for conversations and AI battles, <strong>HuggingFace</strong> for image generation, <strong>Suno AI</strong> for music creation, and <strong>Audd</strong> for song recognition via <code>!shazam</code>." },
+        { q:"Is my data secure?", a:"Yes. All data is stored in an encrypted MongoDB database with an encryption key protecting it at rest. Message content is never stored — only processed in real time." },
+        { q:"How do I delete my data?", a:"Send an email to <strong>admin@maximegpt.com</strong> with your Discord username and server ID. We'll process the deletion within 72 hours." },
+        { q:"The bot isn't responding. What do I do?", a:"Make sure the bot has the necessary permissions in your server channel. If the problem persists, join our support server via the footer link." },
+        { q:"What languages does the bot support?", a:"MaximeGPT supports <strong>French, English, and Spanish</strong>. Use <code>!help fr</code> or <code>!help es</code> to switch language." },
+        { q:"What is the !setup command for?", a:"It allows server administrators to configure optional API keys (Groq, Suno, HuggingFace) to unlock advanced AI features. It's only for admins." },
+      ],
+      fr: [
+        { q:"MaximeGPT est-il gratuit ?", a:"Oui, entièrement gratuit. Pas d'abonnement, pas de frais cachés. Ajoute simplement le bot à ton serveur et utilise toutes les fonctionnalités." },
+        { q:"Comment ajouter MaximeGPT à mon serveur ?", a:"Clique sur le bouton <strong>Ajouter au serveur</strong> en haut de cette page. Tu dois avoir la permission 'Gérer le serveur' sur ton serveur Discord." },
+        { q:"Quelle IA utilise le bot ?", a:"MaximeGPT utilise <strong>Groq</strong> (LLaMA) pour les conversations et batailles IA, <strong>HuggingFace</strong> pour la génération d'images, <strong>Suno AI</strong> pour la création musicale, et <strong>Audd</strong> pour la reconnaissance musicale via <code>!shazam</code>." },
+        { q:"Mes données sont-elles sécurisées ?", a:"Oui. Toutes les données sont stockées dans une base MongoDB chiffrée avec une clé de chiffrement les protégeant au repos. Le contenu des messages n'est jamais stocké — uniquement traité en temps réel." },
+        { q:"Comment supprimer mes données ?", a:"Envoie un email à <strong>admin@maximegpt.com</strong> avec ton pseudo Discord et l'ID de ton serveur. Nous traiterons la suppression sous 72h." },
+        { q:"Le bot ne répond pas. Que faire ?", a:"Vérifie que le bot a les permissions nécessaires dans le canal de ton serveur. Si le problème persiste, rejoins notre serveur de support via le lien en bas de page." },
+        { q:"Quelles langues le bot supporte-t-il ?", a:"MaximeGPT supporte le <strong>français, l'anglais et l'espagnol</strong>. Utilise <code>!help fr</code> ou <code>!help es</code> pour changer de langue." },
+        { q:"À quoi sert la commande !setup ?", a:"Elle permet aux administrateurs de serveur de configurer des clés API optionnelles (Groq, Suno, HuggingFace) pour débloquer les fonctionnalités IA avancées. Réservé aux admins." },
+      ],
+      es: [
+        { q:"¿MaximeGPT es gratuito?", a:"Sí, completamente gratuito. Sin suscripción, sin tarifas ocultas. Solo añade el bot a tu servidor y usa todas las funciones." },
+        { q:"¿Cómo añado MaximeGPT a mi servidor?", a:"Haz clic en el botón <strong>Añadir al servidor</strong> en la parte superior de esta página. Necesitas tener el permiso 'Gestionar servidor' en tu servidor de Discord." },
+        { q:"¿Qué IA usa el bot?", a:"MaximeGPT usa <strong>Groq</strong> (LLaMA) para conversaciones y batallas IA, <strong>HuggingFace</strong> para generación de imágenes, <strong>Suno AI</strong> para creación musical, y <strong>Audd</strong> para reconocimiento musical con <code>!shazam</code>." },
+        { q:"¿Están seguros mis datos?", a:"Sí. Todos los datos se almacenan en una base de datos MongoDB cifrada con una clave de cifrado que los protege en reposo. El contenido de los mensajes nunca se almacena — solo se procesa en tiempo real." },
+        { q:"¿Cómo elimino mis datos?", a:"Envía un correo a <strong>admin@maximegpt.com</strong> con tu nombre de usuario de Discord y el ID del servidor. Procesaremos la eliminación en 72 horas." },
+        { q:"El bot no responde. ¿Qué hago?", a:"Asegúrate de que el bot tiene los permisos necesarios en el canal de tu servidor. Si el problema persiste, únete a nuestro servidor de soporte desde el enlace del pie de página." },
+        { q:"¿Qué idiomas soporta el bot?", a:"MaximeGPT soporta <strong>francés, inglés y español</strong>. Usa <code>!help fr</code> o <code>!help es</code> para cambiar de idioma." },
+        { q:"¿Para qué sirve el comando !setup?", a:"Permite a los administradores del servidor configurar claves API opcionales (Groq, Suno, HuggingFace) para desbloquear funciones IA avanzadas. Solo para admins." },
+      ],
+    };
+
+    function buildFaq(lang) {
+      const list = document.getElementById('faq-list');
+      const items = faqData[lang] || faqData.en;
+      list.innerHTML = items.map((item, i) => `
+        <div class="faq-item reveal">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>${item.q}</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>${item.a}</p></div>
+        </div>`).join('');
+    }
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    }
+
+    /* ── NAVBAR ── */
+    function toggleNav() {
+      document.getElementById('nav-links').classList.toggle('open');
+    }
+    document.addEventListener('click', e => {
+      const nav = document.getElementById('navbar');
+      if (!nav.contains(e.target)) document.getElementById('nav-links').classList.remove('open');
+    });
+
+    const origSetLang2 = window.setLang || setLang;
+    const _setLangBase = setLang;
+    window._setLangWithFaq = function(lang) {
+      _setLangBase(lang);
+      buildFaq(lang);
+    };
+
+    const sections = ['hero','features','commands','faq'];
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY + 80;
+      let current = 'hero';
+      sections.forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.offsetTop <= scrollY) current = id;
+      });
+      document.querySelectorAll('.nav-link').forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+      });
+    }, { passive: true });
 
     function openModal(type) {
       const activBtn = document.querySelector('.lang-btn.active');
