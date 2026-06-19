@@ -414,9 +414,96 @@
       .orb, .scroll-dot, .hero-grid { animation: none; }
       .reveal { opacity: 1; transform: none; transition: none; }
     }
+
+    /* ── LOADER ── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--purple-deep);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2rem;
+      transition: opacity .6s ease, visibility .6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+
+    .loader-logo {
+      font-family: 'Bebas Neue', 'Arial Black', sans-serif;
+      font-size: clamp(3rem, 12vw, 6rem);
+      letter-spacing: .08em;
+      background: linear-gradient(140deg, #fff 0%, var(--purple-neon) 45%, var(--pink-accent) 80%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: loaderPulse 1.6s ease-in-out infinite;
+    }
+    @keyframes loaderPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: .7; transform: scale(1.03); }
+    }
+
+    .loader-orbs {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .loader-orb {
+      position: absolute; border-radius: 50%; filter: blur(80px);
+    }
+    .loader-orb-1 {
+      width: 420px; height: 420px;
+      background: rgba(124,58,237,.3);
+      top: -15%; left: -10%;
+      animation: orbFloat 6s ease-in-out infinite;
+    }
+    .loader-orb-2 {
+      width: 320px; height: 320px;
+      background: rgba(232,121,249,.2);
+      bottom: -10%; right: -8%;
+      animation: orbFloat 8s ease-in-out infinite reverse;
+    }
+
+    .loader-bar-wrap {
+      width: min(260px, 70vw); height: 3px;
+      background: rgba(255,255,255,.08);
+      border-radius: 99px; overflow: hidden;
+    }
+    .loader-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--purple-glow), var(--pink-accent));
+      border-radius: 99px;
+      box-shadow: 0 0 12px rgba(168,85,247,.8);
+      animation: loaderFill 1.6s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes loaderFill {
+      0%   { width: 0%; }
+      60%  { width: 75%; }
+      100% { width: 100%; }
+    }
+
+    .loader-dots {
+      display: flex; gap: .5rem;
+    }
+    .loader-dots span {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--purple-neon);
+      animation: dotBounce .9s ease-in-out infinite;
+    }
+    .loader-dots span:nth-child(2) { animation-delay: .15s; }
+    .loader-dots span:nth-child(3) { animation-delay: .3s; }
+    @keyframes dotBounce {
+      0%,100% { transform: translateY(0); opacity: .4; }
+      50%      { transform: translateY(-8px); opacity: 1; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-orbs">
+      <div class="loader-orb loader-orb-1"></div>
+      <div class="loader-orb loader-orb-2"></div>
+    </div>
+    <div class="loader-logo">MaximeGPT</div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+    <div class="loader-dots"><span></span><span></span><span></span></div>
+  </div>
 
   <!-- PARTICLE CANVAS -->
   <canvas id="particle-canvas"></canvas>
@@ -842,6 +929,22 @@
     }
 
     setLang('en');
+
+    /* ── LOADER DISMISS ── */
+    (function() {
+      const loader = document.getElementById('loader');
+      function hideLoader() {
+        loader.classList.add('hidden');
+        setTimeout(() => loader.remove(), 700);
+      }
+      if (document.readyState === 'complete') {
+        setTimeout(hideLoader, 1700);
+      } else {
+        window.addEventListener('load', function() {
+          setTimeout(hideLoader, 400);
+        });
+      }
+    })();
   </script>
 </body>
 </html>
