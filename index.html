@@ -393,24 +393,88 @@
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
     /* ── FOOTER ── */
+    /* ── FOOTER ── */
     footer {
-      position: relative; z-index: 1; text-align: center;
-      padding: 3.5rem 1.5rem;
+      position: relative; z-index: 1;
+      padding: 4rem 2rem 2rem;
       border-top: 1px solid rgba(168,85,247,.12);
+      max-width: 1000px; margin: 0 auto;
     }
-    footer .footer-logo {
-      font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem;
+    .footer-top {
+      display: grid; grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 2.5rem; margin-bottom: 3rem;
+    }
+    @media (max-width: 700px) {
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+    }
+    .footer-brand .footer-logo {
+      font-family: 'Bebas Neue', 'Arial Black', sans-serif; font-size: 2rem;
       background: linear-gradient(135deg, #fff, var(--purple-neon), var(--pink-accent));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      margin-bottom: .5rem;
+      margin-bottom: .5rem; display: block;
     }
-    footer p { font-size: .82rem; color: var(--grey); }
-    footer a { color: var(--purple-neon); text-decoration: none; }
-    footer a:hover { color: var(--pink-accent); text-decoration: underline; }
-    .footer-links {
-      display: flex; justify-content: center; gap: 1.5rem;
-      margin-top: 1rem; flex-wrap: wrap;
+    .footer-brand p { font-size: .82rem; color: var(--grey); line-height: 1.6; max-width: 240px; }
+    .footer-col h4 {
+      font-family: 'Rajdhani', sans-serif; font-size: .72rem; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--purple-neon); margin-bottom: 1rem; font-weight: 700;
     }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .footer-col ul li a, .footer-col ul li button {
+      font-size: .85rem; color: var(--grey);
+      text-decoration: none; background: none; border: none; cursor: pointer;
+      padding: 0; font-family: inherit; transition: color .2s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .footer-col ul li a:hover, .footer-col ul li button:hover { color: var(--white); }
+    .footer-bottom {
+      border-top: 1px solid rgba(168,85,247,.08);
+      padding-top: 1.5rem;
+      display: flex; justify-content: center; align-items: center;
+      font-size: .75rem; color: rgba(156,163,175,.5);
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(8,6,20,.85); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; visibility: hidden;
+      transition: opacity .3s, visibility .3s;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal-box {
+      background: #110c28; border: 1px solid rgba(168,85,247,.25);
+      border-radius: 16px; padding: 2.5rem; max-width: 640px; width: 100%;
+      max-height: 80vh; overflow-y: auto;
+      transform: translateY(20px); transition: transform .3s;
+      scrollbar-width: thin; scrollbar-color: rgba(168,85,247,.3) transparent;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
+    .modal-box h2 {
+      font-family: 'Bebas Neue', 'Arial Black', sans-serif; font-size: 1.8rem; letter-spacing: .06em;
+      background: linear-gradient(135deg, #fff, var(--purple-neon));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 1.5rem;
+    }
+    .modal-box h3 {
+      font-family: 'Rajdhani', sans-serif; font-size: .75rem; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--purple-neon); margin: 1.4rem 0 .5rem;
+    }
+    .modal-box p { font-size: .875rem; color: var(--grey); line-height: 1.7; }
+    .modal-box .badge-free {
+      display: inline-block; background: rgba(35,197,94,.1);
+      border: 1px solid rgba(35,197,94,.3); color: #23c55e;
+      padding: .25rem .75rem; border-radius: 99px; font-size: .78rem;
+      font-family: 'Rajdhani', sans-serif; letter-spacing: .1em; margin-bottom: 1rem;
+    }
+    .modal-close {
+      position: absolute; top: 1rem; right: 1.2rem;
+      background: none; border: none; color: var(--grey); font-size: 1.4rem;
+      cursor: pointer; transition: color .2s; line-height: 1;
+    }
+    .modal-box-wrap { position: relative; }
+    .modal-close:hover { color: var(--white); }
 
     /* ── ANIMS ── */
     @keyframes fadeUp {
@@ -751,14 +815,63 @@
 
   <!-- FOOTER -->
   <footer>
-    <p class="footer-logo">MaximeGPT</p>
-    <p data-i18n="footer_sub">Your Discord Partner. One bot. Endless possibilities.</p>
-    <div class="footer-links">
-      <a href="https://maximegpt.com">maximegpt.com</a>
-      <a href="https://maximegpt.fr">maximegpt.fr</a>
-      <a href="https://discord.gg/" target="_blank">Discord</a>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="footer-logo">MaximeGPT</span>
+        <p data-i18n="footer_sub">Your Discord Partner. One bot. Endless possibilities.</p>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_community">Community</h4>
+        <ul>
+          <li><a href="https://discord.gg/" target="_blank">💬 <span data-i18n="footer_support">Support Server</span></a></li>
+          <li><a href="https://discord.gg/" target="_blank">🎫 <span data-i18n="footer_portal">Assistance Portal</span></a></li>
+          <li><a href="mailto:admin@maximegpt.com">📧 <span data-i18n="footer_contact">Contact Us</span></a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_legal_title">Legal</h4>
+        <ul>
+          <li><button onclick="openModal('terms')">📄 <span data-i18n="footer_terms">Terms of Use</span></button></li>
+          <li><button onclick="openModal('privacy')">🔒 <span data-i18n="footer_privacy">Privacy Policy</span></button></li>
+          <li><button onclick="openModal('bugs')">🐛 <span data-i18n="footer_bugs">Bug Bounty Program</span></button></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p data-i18n="footer_copy">© 2026 MaximeGPT. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="modal-terms" onclick="closeModalOutside(event,'modal-terms')">
+    <div class="modal-box-wrap">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('modal-terms')">✕</button>
+        <h2 data-i18n="footer_terms">Terms of Use</h2>
+        <div id="terms-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-privacy" onclick="closeModalOutside(event,'modal-privacy')">
+    <div class="modal-box-wrap">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('modal-privacy')">✕</button>
+        <h2 data-i18n="footer_privacy">Privacy Policy</h2>
+        <div id="privacy-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-bugs" onclick="closeModalOutside(event,'modal-bugs')">
+    <div class="modal-box-wrap">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('modal-bugs')">✕</button>
+        <h2 data-i18n="footer_bugs">Bug Bounty Program</h2>
+        <div id="bugs-content"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
     /* ── PARTICLES ── */
@@ -860,6 +973,11 @@
         c_aibattle:"AI battle on a topic 🥊", c_aistop:"Stop the battle", c_credits:"Credits ✨",
         c_helpfr:"Help in French or Spanish", c_admin:"Moderator commands 🔧", c_setup:"API keys & secrets",
         footer_sub:"Your Discord Partner. One bot. Endless possibilities.",
+        footer_community:"Community", footer_legal_title:"Legal",
+        footer_support:"Support Server", footer_portal:"Assistance Portal",
+        footer_contact:"Contact Us", footer_terms:"Terms of Use",
+        footer_privacy:"Privacy Policy", footer_bugs:"Bug Bounty Program",
+        footer_copy:"© 2026 MaximeGPT. All rights reserved.",
       },
       fr: {
         eyebrow:"Votre partenaire Discord", tagline:"Un bot. Des possibilités infinies. Jeux, musique, IA, radio, anniversaires et bien plus.",
@@ -895,6 +1013,11 @@
         c_aibattle:"Bataille IA sur un sujet 🥊", c_aistop:"Stopper la bataille", c_credits:"Crédits ✨",
         c_helpfr:"Aide en français ou espagnol", c_admin:"Commandes modérateur 🔧", c_setup:"Clés API & secrets",
         footer_sub:"Votre partenaire Discord. Un bot. Des possibilités infinies.",
+        footer_community:"Communauté", footer_legal_title:"Légal",
+        footer_support:"Serveur de support", footer_portal:"Portail d'assistance",
+        footer_contact:"Contactez-nous", footer_terms:"Conditions d'utilisation",
+        footer_privacy:"Politique de confidentialité", footer_bugs:"Programme de résolution des bugs",
+        footer_copy:"© 2026 MaximeGPT. Tous droits réservés.",
       },
       es: {
         eyebrow:"Tu compañero de Discord", tagline:"Un bot. Posibilidades infinitas. Juegos, música, IA, radio, cumpleaños y mucho más.",
@@ -930,6 +1053,11 @@
         c_aibattle:"Batalla IA sobre un tema 🥊", c_aistop:"Detener la batalla", c_credits:"Créditos ✨",
         c_helpfr:"Ayuda en francés o español", c_admin:"Comandos de moderador 🔧", c_setup:"Claves API & secretos",
         footer_sub:"Tu compañero de Discord. Un bot. Posibilidades infinitas.",
+        footer_community:"Comunidad", footer_legal_title:"Legal",
+        footer_support:"Servidor de soporte", footer_portal:"Portal de asistencia",
+        footer_contact:"Contáctanos", footer_terms:"Términos de uso",
+        footer_privacy:"Política de privacidad", footer_bugs:"Programa de resolución de bugs",
+        footer_copy:"© 2026 MaximeGPT. Todos los derechos reservados.",
       }
     };
 
@@ -947,7 +1075,84 @@
 
     setLang('en');
 
+    /* ── MODALS ── */
+    const modalContent = {
+      terms: {
+        en: `<h3>Acceptance</h3><p>By using MaximeGPT, you agree to these terms. If you do not agree, please do not use the bot.</p>
+             <h3>Use of the Service</h3><p>MaximeGPT is a Discord bot provided free of charge. You agree not to use it for illegal purposes, harassment, spam, or any activity that violates Discord's Terms of Service.</p>
+             <h3>Availability</h3><p>The service is provided "as is" with no guarantee of uptime. We may suspend or terminate access at any time without notice.</p>
+             <h3>Intellectual Property</h3><p>All content, code and design related to MaximeGPT are the property of its creators. Reproduction without permission is prohibited.</p>
+             <h3>Changes</h3><p>These terms may be updated at any time. Continued use of the bot constitutes acceptance of the updated terms.</p>
+             <h3>Contact</h3><p>For any questions: <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
+        fr: `<h3>Acceptation</h3><p>En utilisant MaximeGPT, vous acceptez ces conditions. Si vous n'êtes pas d'accord, veuillez ne pas utiliser le bot.</p>
+             <h3>Utilisation du service</h3><p>MaximeGPT est un bot Discord fourni gratuitement. Vous vous engagez à ne pas l'utiliser à des fins illégales, de harcèlement, de spam ou de toute activité violant les CGU de Discord.</p>
+             <h3>Disponibilité</h3><p>Le service est fourni "tel quel" sans garantie de disponibilité. Nous pouvons suspendre ou résilier l'accès à tout moment sans préavis.</p>
+             <h3>Propriété intellectuelle</h3><p>Tout contenu, code et design liés à MaximeGPT sont la propriété de ses créateurs. La reproduction sans autorisation est interdite.</p>
+             <h3>Modifications</h3><p>Ces conditions peuvent être mises à jour à tout moment. L'utilisation continue du bot vaut acceptation des conditions mises à jour.</p>
+             <h3>Contact</h3><p>Pour toute question : <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
+        es: `<h3>Aceptación</h3><p>Al usar MaximeGPT, aceptas estos términos. Si no estás de acuerdo, por favor no uses el bot.</p>
+             <h3>Uso del servicio</h3><p>MaximeGPT es un bot de Discord proporcionado de forma gratuita. Te comprometes a no usarlo con fines ilegales, acoso, spam o cualquier actividad que viole los Términos de Servicio de Discord.</p>
+             <h3>Disponibilidad</h3><p>El servicio se proporciona "tal cual" sin garantía de disponibilidad. Podemos suspender o cancelar el acceso en cualquier momento sin previo aviso.</p>
+             <h3>Propiedad intelectual</h3><p>Todo el contenido, código y diseño relacionados con MaximeGPT son propiedad de sus creadores. La reproducción sin permiso está prohibida.</p>
+             <h3>Cambios</h3><p>Estos términos pueden actualizarse en cualquier momento. El uso continuado del bot implica la aceptación de los términos actualizados.</p>
+             <h3>Contacto</h3><p>Para cualquier pregunta: <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
+      },
+      privacy: {
+        en: `<h3>Data Collected</h3><p>MaximeGPT may collect Discord user IDs, server IDs, message content (only when commands are used), and birthday dates voluntarily provided by users.</p>
+             <h3>Use of Data</h3><p>Collected data is used solely to operate bot features (reminders, birthday tracking, quest system, etc.). No data is sold or shared with third parties.</p>
+             <h3>Data Retention</h3><p>Data is kept as long as necessary for the proper functioning of the bot. You may request deletion at any time by contacting us.</p>
+             <h3>Security</h3><p>We take reasonable steps to protect your data, but no system is 100% secure. Use the bot at your own risk.</p>
+             <h3>Your Rights</h3><p>You may request access to, correction of, or deletion of your data at any time by writing to <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a>.</p>
+             <h3>Contact</h3><p><a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
+        fr: `<h3>Données collectées</h3><p>MaximeGPT peut collecter les identifiants Discord des utilisateurs, les identifiants de serveur, le contenu des messages (uniquement lors de l'utilisation des commandes), et les dates d'anniversaire fournies volontairement par les utilisateurs.</p>
+             <h3>Utilisation des données</h3><p>Les données collectées servent uniquement au fonctionnement des fonctionnalités du bot (rappels, suivi d'anniversaires, système de quêtes, etc.). Aucune donnée n'est vendue ni partagée avec des tiers.</p>
+             <h3>Conservation des données</h3><p>Les données sont conservées le temps nécessaire au bon fonctionnement du bot. Vous pouvez demander leur suppression à tout moment en nous contactant.</p>
+             <h3>Sécurité</h3><p>Nous prenons des mesures raisonnables pour protéger vos données, mais aucun système n'est sécurisé à 100%. Utilisez le bot à vos propres risques.</p>
+             <h3>Vos droits</h3><p>Vous pouvez demander l'accès, la rectification ou la suppression de vos données à tout moment en écrivant à <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a>.</p>
+             <h3>Contact</h3><p><a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
+        es: `<h3>Datos recopilados</h3><p>MaximeGPT puede recopilar IDs de usuario de Discord, IDs de servidor, contenido de mensajes (solo cuando se usan comandos) y fechas de cumpleaños proporcionadas voluntariamente por los usuarios.</p>
+             <h3>Uso de datos</h3><p>Los datos recopilados se utilizan únicamente para operar las funciones del bot (recordatorios, seguimiento de cumpleaños, sistema de misiones, etc.). No se venden ni comparten datos con terceros.</p>
+             <h3>Retención de datos</h3><p>Los datos se conservan el tiempo necesario para el correcto funcionamiento del bot. Puedes solicitar su eliminación en cualquier momento contactándonos.</p>
+             <h3>Seguridad</h3><p>Tomamos medidas razonables para proteger tus datos, pero ningún sistema es 100% seguro. Usa el bot bajo tu propio riesgo.</p>
+             <h3>Tus derechos</h3><p>Puedes solicitar acceso, corrección o eliminación de tus datos en cualquier momento escribiendo a <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a>.</p>
+             <h3>Contacto</h3><p><a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a></p>`,
+      },
+      bugs: {
+        en: `<span class="badge-free">0 € — Free Program</span>
+             <h3>About This Program</h3><p>MaximeGPT is a free, non-commercial project. We have no financial reward program. However, we deeply value community contributions and every bug report helps improve the bot for everyone.</p>
+             <h3>What to Report</h3><p>Commands that crash or return unexpected errors, features that don't work as described, security vulnerabilities (please report privately), and any behaviour that seems abnormal.</p>
+             <h3>How to Report</h3><p>Join our support server and open a ticket, or send a detailed email to <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a> with: the command used, the error message, and the steps to reproduce.</p>
+             <h3>Reward</h3><p>No financial compensation is offered. Contributors may receive a special role on our Discord server as a thank-you.</p>`,
+        fr: `<span class="badge-free">0 € — Programme gratuit</span>
+             <h3>À propos de ce programme</h3><p>MaximeGPT est un projet gratuit et non commercial. Nous n'avons pas de programme de récompense financière. Cependant, nous valorisons profondément les contributions de la communauté et chaque signalement de bug aide à améliorer le bot pour tout le monde.</p>
+             <h3>Quoi signaler</h3><p>Les commandes qui plantent ou retournent des erreurs inattendues, les fonctionnalités qui ne fonctionnent pas comme décrit, les failles de sécurité (merci de les signaler en privé), et tout comportement qui semble anormal.</p>
+             <h3>Comment signaler</h3><p>Rejoignez notre serveur de support et ouvrez un ticket, ou envoyez un email détaillé à <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a> avec : la commande utilisée, le message d'erreur, et les étapes pour reproduire.</p>
+             <h3>Récompense</h3><p>Aucune compensation financière n'est proposée. Les contributeurs peuvent recevoir un rôle spécial sur notre serveur Discord en guise de remerciement.</p>`,
+        es: `<span class="badge-free">0 € — Programa gratuito</span>
+             <h3>Sobre este programa</h3><p>MaximeGPT es un proyecto gratuito y no comercial. No tenemos un programa de recompensas financieras. Sin embargo, valoramos profundamente las contribuciones de la comunidad y cada reporte de bug ayuda a mejorar el bot para todos.</p>
+             <h3>Qué reportar</h3><p>Comandos que fallan o devuelven errores inesperados, funciones que no funcionan como se describe, vulnerabilidades de seguridad (por favor repórtalas en privado), y cualquier comportamiento que parezca anormal.</p>
+             <h3>Cómo reportar</h3><p>Únete a nuestro servidor de soporte y abre un ticket, o envía un correo detallado a <a href="mailto:admin@maximegpt.com">admin@maximegpt.com</a> con: el comando utilizado, el mensaje de error y los pasos para reproducirlo.</p>
+             <h3>Recompensa</h3><p>No se ofrece compensación económica. Los contribuyentes pueden recibir un rol especial en nuestro servidor de Discord como agradecimiento.</p>`,
+      },
+    };
 
+    function openModal(type) {
+      const activBtn = document.querySelector('.lang-btn.active');
+      const lang = activBtn ? activBtn.textContent.trim().toLowerCase() : 'en';
+      document.getElementById(type + '-content').innerHTML = modalContent[type][lang] || modalContent[type]['en'];
+      document.getElementById('modal-' + type).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function closeModalOutside(e, id) {
+      if (e.target === document.getElementById(id)) closeModal(id);
+    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => { m.classList.remove('open'); document.body.style.overflow = ''; });
+    });
 
     /* ── LOADER DISMISS ── */
     (function() {
