@@ -203,6 +203,31 @@
     .ctab-panel { display: none; }
     .ctab-panel.active { display: block; }
 
+    /* ── RADIO CHIPS ── */
+    .radio-chips {
+      display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; padding-left: .25rem;
+    }
+    .radio-chip {
+      display: inline-flex; align-items: center; gap: .3rem;
+      background: rgba(124,58,237,.12); border: 1px solid rgba(168,85,247,.25);
+      border-radius: 999px; padding: .2rem .65rem;
+      font-size: .72rem; font-family: 'Rajdhani', sans-serif; font-weight: 600;
+      letter-spacing: .06em; color: var(--purple-neon);
+      white-space: nowrap;
+    }
+    .radio-chip .chip-genre { color: var(--grey); font-weight: 400; font-size: .68rem; }
+
+    /* ── MUSIC PROMPTS ── */
+    .music-prompts {
+      margin-top: .8rem; display: flex; flex-direction: column; gap: .35rem; padding-left: .25rem;
+    }
+    .music-prompt-item {
+      background: rgba(255,255,255,.03); border: 1px solid rgba(168,85,247,.15);
+      border-radius: 8px; padding: .35rem .7rem;
+      font-size: .72rem; color: var(--grey); font-style: italic; line-height: 1.4;
+    }
+    .music-prompt-item::before { content: '🎶 '; font-style: normal; }
+
     /* ── HERO ── */
     #hero {
       position: relative; min-height: 100vh;
@@ -823,8 +848,13 @@
       </div>
       <div class="feature-card reveal">
         <span class="feature-icon">🎙️</span>
-        <p class="feature-name" data-i18n="f6_name">Voice (TTS)</p>
-        <p class="feature-desc" data-i18n="f6_desc">Google TTS speech synthesis in voice channels with live subtitles.</p>
+        <p class="feature-name" data-i18n="f6_name">Voice (TTS + STT)</p>
+        <p class="feature-desc" data-i18n="f6_desc">Google TTS reads aloud, Groq Whisper listens and replies by voice — live subtitles included.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">⚔️</span>
+        <p class="feature-name" data-i18n="f7_name">AI Battle</p>
+        <p class="feature-desc" data-i18n="f7_desc">Two AI bots debate any topic in 3 rounds — one FOR, one AGAINST — then an AI judge crowns the winner.</p>
       </div>
     </div>
   </section>
@@ -887,7 +917,14 @@
       <div class="cmd-group reveal">
         <p class="cmd-group-title">🎵 <span data-i18n="grp_music">Music — Suno AI</span></p>
         <ul class="cmd-list">
-          <li><code>!music generator &lt;prompt&gt;</code><span class="cmd-desc" data-i18n="c_mgen">Style, mood, lyrics 🎶</span></li>
+          <li><code>!music generator &lt;prompt&gt;</code><span class="cmd-desc" data-i18n="c_mgen">Style, mood, lyrics 🎶</span>
+            <div class="music-prompts">
+              <div class="music-prompt-item">lo-fi hip hop beats, rainy day, chill, vinyl crackle</div>
+              <div class="music-prompt-item">upbeat rock anthem, electric guitar riffs, powerful drums</div>
+              <div class="music-prompt-item">dark synthwave, neon lights, midnight drive, 80s retro</div>
+              <div class="music-prompt-item">smooth jazz, saxophone, late night club, soft brushed drums</div>
+            </div>
+          </li>
           <li><code>!music prompt</code><span class="cmd-desc" data-i18n="c_mprompt">Style examples 💡</span></li>
           <li><code>!balance</code><span class="cmd-desc" data-i18n="c_balance">Remaining Suno credits 💳</span></li>
         </ul>
@@ -901,7 +938,20 @@
           <li><code>!voice stop</code> / <code>!voice resume</code><span class="cmd-desc" data-i18n="c_vstop">Pause / resume</span></li>
           <li><code>!subtitles</code><span class="cmd-desc" data-i18n="c_subs">Live subtitles 📝</span></li>
           <li><code>!radio list</code><span class="cmd-desc" data-i18n="c_rlist">List of radio stations 📻</span></li>
-          <li><code>!radio &lt;name&gt;</code><span class="cmd-desc" data-i18n="c_radio">e.g. <em>!radio nrj</em></span></li>
+          <li><code>!radio &lt;name&gt;</code><span class="cmd-desc" data-i18n="c_radio">e.g. <em>!radio nrj</em></span>
+            <div class="radio-chips">
+              <span class="radio-chip">nrj <span class="chip-genre">Pop/Hits</span></span>
+              <span class="radio-chip">fun <span class="chip-genre">Dance</span></span>
+              <span class="radio-chip">rtl <span class="chip-genre">News</span></span>
+              <span class="radio-chip">europe1 <span class="chip-genre">Talk</span></span>
+              <span class="radio-chip">skyrock <span class="chip-genre">Hip-Hop</span></span>
+              <span class="radio-chip">franceinter <span class="chip-genre">Culture</span></span>
+              <span class="radio-chip">musique <span class="chip-genre">Classical</span></span>
+              <span class="radio-chip">virgin <span class="chip-genre">Rock</span></span>
+              <span class="radio-chip">nostalgie <span class="chip-genre">Oldies</span></span>
+              <span class="radio-chip">cherie <span class="chip-genre">Love</span></span>
+            </div>
+          </li>
           <li><code>!youtube &lt;url&gt;</code><span class="cmd-desc" data-i18n="c_yt">Play a YouTube video 🎬</span></li>
           <li><code>!np</code><span class="cmd-desc" data-i18n="c_np">Now playing</span></li>
           <li><code>!radio leave</code><span class="cmd-desc" data-i18n="c_rleave">Disconnect radio</span></li>
@@ -1205,7 +1255,8 @@
         f3_name:"Artificial Intelligence", f3_desc:"Built-in GPT, image generation, AI battles on any topic you can imagine.",
         f4_name:"Birthdays", f4_desc:"Save dates and never forget your community's birthdays again.",
         f5_name:"Quests & XP", f5_desc:"Quest system, levels, reminders and stats to keep your community engaged.",
-        f6_name:"Voice (TTS)", f6_desc:"Google TTS speech synthesis in voice channels with live subtitles.",
+        f6_name:"Voice (TTS + STT)", f6_desc:"Google TTS reads aloud, Groq Whisper listens and replies by voice — live subtitles included.",
+        f7_name:"AI Battle", f7_desc:"Two AI bots debate any topic in 3 rounds — one FOR, one AGAINST — then an AI judge crowns the winner.",
         cmd_label:"Reference", cmd_title:"All <span>commands</span>",
         grp_general:"General", grp_fun:"Fun", grp_bday:"Birthdays", grp_games:"Mini-games",
         grp_music:"Music — Suno AI", grp_voice:"Voice & Radio", grp_quests:"Quests & Levels", grp_ai:"AI & Info",
@@ -1259,7 +1310,8 @@
         f3_name:"Intelligence Artificielle", f3_desc:"GPT intégré, génération d'images, batailles IA sur n'importe quel sujet.",
         f4_name:"Anniversaires", f4_desc:"Enregistre les dates et n'oublie plus jamais les anniversaires de ta communauté.",
         f5_name:"Quêtes & XP", f5_desc:"Système de quêtes, niveaux, rappels et statistiques pour fidéliser ta communauté.",
-        f6_name:"Voix (TTS)", f6_desc:"Synthèse vocale Google TTS dans les canaux vocaux, sous-titres en direct.",
+        f6_name:"Voix (TTS + STT)", f6_desc:"Google TTS lit à voix haute, Groq Whisper t'écoute et répond en vocal — sous-titres en direct inclus.",
+        f7_name:"Bataille IA", f7_desc:"Deux bots IA débattent de n'importe quel sujet en 3 rounds — l'un POUR, l'autre CONTRE — puis un juge IA désigne le vainqueur.",
         cmd_label:"Référence", cmd_title:"Toutes les <span>commandes</span>",
         grp_general:"Général", grp_fun:"Fun", grp_bday:"Anniversaires", grp_games:"Mini-jeux",
         grp_music:"Musique — Suno AI", grp_voice:"Voix & Radio", grp_quests:"Quêtes & Niveaux", grp_ai:"IA & Info",
@@ -1314,7 +1366,8 @@
         f3_name:"Inteligencia Artificial", f3_desc:"GPT integrado, generación de imágenes, batallas IA sobre cualquier tema.",
         f4_name:"Cumpleaños", f4_desc:"Guarda fechas y no olvides nunca los cumpleaños de tu comunidad.",
         f5_name:"Misiones & XP", f5_desc:"Sistema de misiones, niveles, recordatorios y estadísticas para fidelizar tu comunidad.",
-        f6_name:"Voz (TTS)", f6_desc:"Síntesis de voz Google TTS en canales de voz, subtítulos en directo.",
+        f6_name:"Voz (TTS + STT)", f6_desc:"Google TTS lee en voz alta, Groq Whisper te escucha y responde por voz — subtítulos en directo incluidos.",
+        f7_name:"Batalla IA", f7_desc:"Dos bots IA debaten cualquier tema en 3 rondas — uno A FAVOR, otro EN CONTRA — luego un juez IA proclama el ganador.",
         cmd_label:"Referencia", cmd_title:"Todos los <span>comandos</span>",
         grp_general:"General", grp_fun:"Diversión", grp_bday:"Cumpleaños", grp_games:"Minijuegos",
         grp_music:"Música — Suno AI", grp_voice:"Voz & Radio", grp_quests:"Misiones & Niveles", grp_ai:"IA & Info",
