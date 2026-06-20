@@ -1159,6 +1159,53 @@
       if (typeof buildFaq === 'function') buildFaq(lang);
     }
 
+    /* ── FAQ DATA (must be before setLang) ── */
+    const faqData = {
+      en: [
+        { q:"Is MaximeGPT free?", a:"Yes, completely free. No subscription, no hidden fees. Just add the bot to your server and use all features." },
+        { q:"How do I add MaximeGPT to my server?", a:"Click the <strong>Add to Server</strong> button at the top of this page. You need to have the 'Manage Server' permission on your Discord server." },
+        { q:"What AI does the bot use?", a:"MaximeGPT uses <strong>Groq</strong> (LLaMA) for conversations and AI battles, <strong>HuggingFace</strong> for image generation, <strong>Suno AI</strong> for music creation, and <strong>Audd</strong> for song recognition via <code>!shazam</code>." },
+        { q:"Is my data secure?", a:"Yes. All data is stored in an encrypted MongoDB database with an encryption key protecting it at rest. Message content is never stored — only processed in real time." },
+        { q:"How do I delete my data?", a:"Send an email to <strong>admin@maximegpt.com</strong> with your Discord username and server ID. We'll process the deletion within 72 hours." },
+        { q:"The bot isn't responding. What do I do?", a:"Make sure the bot has the necessary permissions in your server channel. If the problem persists, join our support server via the footer link." },
+        { q:"What languages does the bot support?", a:"MaximeGPT supports <strong>French, English, and Spanish</strong>. Use <code>!help fr</code> or <code>!help es</code> to switch language." },
+        { q:"What is the !setup command for?", a:"It allows server administrators to configure optional API keys (Groq, Suno, HuggingFace) to unlock advanced AI features. It's only for admins." },
+      ],
+      fr: [
+        { q:"MaximeGPT est-il gratuit ?", a:"Oui, entièrement gratuit. Pas d'abonnement, pas de frais cachés. Ajoute simplement le bot à ton serveur et utilise toutes les fonctionnalités." },
+        { q:"Comment ajouter MaximeGPT à mon serveur ?", a:"Clique sur le bouton <strong>Ajouter au serveur</strong> en haut de cette page. Tu dois avoir la permission 'Gérer le serveur' sur ton serveur Discord." },
+        { q:"Quelle IA utilise le bot ?", a:"MaximeGPT utilise <strong>Groq</strong> (LLaMA) pour les conversations et batailles IA, <strong>HuggingFace</strong> pour la génération d'images, <strong>Suno AI</strong> pour la création musicale, et <strong>Audd</strong> pour la reconnaissance musicale via <code>!shazam</code>." },
+        { q:"Mes données sont-elles sécurisées ?", a:"Oui. Toutes les données sont stockées dans une base MongoDB chiffrée avec une clé de chiffrement les protégeant au repos. Le contenu des messages n'est jamais stocké — uniquement traité en temps réel." },
+        { q:"Comment supprimer mes données ?", a:"Envoie un email à <strong>admin@maximegpt.com</strong> avec ton pseudo Discord et l'ID de ton serveur. Nous traiterons la suppression sous 72h." },
+        { q:"Le bot ne répond pas. Que faire ?", a:"Vérifie que le bot a les permissions nécessaires dans le canal de ton serveur. Si le problème persiste, rejoins notre serveur de support via le lien en bas de page." },
+        { q:"Quelles langues le bot supporte-t-il ?", a:"MaximeGPT supporte le <strong>français, l'anglais et l'espagnol</strong>. Utilise <code>!help fr</code> ou <code>!help es</code> pour changer de langue." },
+        { q:"À quoi sert la commande !setup ?", a:"Elle permet aux administrateurs de serveur de configurer des clés API optionnelles (Groq, Suno, HuggingFace) pour débloquer les fonctionnalités IA avancées. Réservé aux admins." },
+      ],
+      es: [
+        { q:"¿MaximeGPT es gratuito?", a:"Sí, completamente gratuito. Sin suscripción, sin tarifas ocultas. Solo añade el bot a tu servidor y usa todas las funciones." },
+        { q:"¿Cómo añado MaximeGPT a mi servidor?", a:"Haz clic en el botón <strong>Añadir al servidor</strong> en la parte superior de esta página. Necesitas tener el permiso 'Gestionar servidor' en tu servidor de Discord." },
+        { q:"¿Qué IA usa el bot?", a:"MaximeGPT usa <strong>Groq</strong> (LLaMA) para conversaciones y batallas IA, <strong>HuggingFace</strong> para generación de imágenes, <strong>Suno AI</strong> para creación musical, y <strong>Audd</strong> para reconocimiento musical con <code>!shazam</code>." },
+        { q:"¿Están seguros mis datos?", a:"Sí. Todos los datos se almacenan en una base de datos MongoDB cifrada con una clave de cifrado que los protege en reposo. El contenido de los mensajes nunca se almacena — solo se procesa en tiempo real." },
+        { q:"¿Cómo elimino mis datos?", a:"Envía un correo a <strong>admin@maximegpt.com</strong> con tu nombre de usuario de Discord y el ID del servidor. Procesaremos la eliminación en 72 horas." },
+        { q:"El bot no responde. ¿Qué hago?", a:"Asegúrate de que el bot tiene los permisos necesarios en el canal de tu servidor. Si el problema persiste, únete a nuestro servidor de soporte desde el enlace del pie de página." },
+        { q:"¿Qué idiomas soporta el bot?", a:"MaximeGPT soporta <strong>francés, inglés y español</strong>. Usa <code>!help fr</code> o <code>!help es</code> para cambiar de idioma." },
+        { q:"¿Para qué sirve el comando !setup?", a:"Permite a los administradores del servidor configurar claves API opcionales (Groq, Suno, HuggingFace) para desbloquear funciones IA avanzadas. Solo para admins." },
+      ],
+    };
+
+    function buildFaq(lang) {
+      const list = document.getElementById('faq-list');
+      if (!list) return;
+      const items = faqData[lang] || faqData.en;
+      list.innerHTML = items.map(item => `
+        <div class="faq-item reveal">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            <span>${item.q}</span><span class="faq-icon">+</span>
+          </button>
+          <div class="faq-a"><p>${item.a}</p></div>
+        </div>`).join('');
+    }
+
     setLang('en');
 
     /* ── MODALS ── */
@@ -1219,58 +1266,6 @@
       },
     };
 
-    /* ── FAQ ── */
-    const faqData = {
-      en: [
-        { q:"Is MaximeGPT free?", a:"Yes, completely free. No subscription, no hidden fees. Just add the bot to your server and use all features." },
-        { q:"How do I add MaximeGPT to my server?", a:"Click the <strong>Add to Server</strong> button at the top of this page. You need to have the 'Manage Server' permission on your Discord server." },
-        { q:"What AI does the bot use?", a:"MaximeGPT uses <strong>Groq</strong> (LLaMA) for conversations and AI battles, <strong>HuggingFace</strong> for image generation, <strong>Suno AI</strong> for music creation, and <strong>Audd</strong> for song recognition via <code>!shazam</code>." },
-        { q:"Is my data secure?", a:"Yes. All data is stored in an encrypted MongoDB database with an encryption key protecting it at rest. Message content is never stored — only processed in real time." },
-        { q:"How do I delete my data?", a:"Send an email to <strong>admin@maximegpt.com</strong> with your Discord username and server ID. We'll process the deletion within 72 hours." },
-        { q:"The bot isn't responding. What do I do?", a:"Make sure the bot has the necessary permissions in your server channel. If the problem persists, join our support server via the footer link." },
-        { q:"What languages does the bot support?", a:"MaximeGPT supports <strong>French, English, and Spanish</strong>. Use <code>!help fr</code> or <code>!help es</code> to switch language." },
-        { q:"What is the !setup command for?", a:"It allows server administrators to configure optional API keys (Groq, Suno, HuggingFace) to unlock advanced AI features. It's only for admins." },
-      ],
-      fr: [
-        { q:"MaximeGPT est-il gratuit ?", a:"Oui, entièrement gratuit. Pas d'abonnement, pas de frais cachés. Ajoute simplement le bot à ton serveur et utilise toutes les fonctionnalités." },
-        { q:"Comment ajouter MaximeGPT à mon serveur ?", a:"Clique sur le bouton <strong>Ajouter au serveur</strong> en haut de cette page. Tu dois avoir la permission 'Gérer le serveur' sur ton serveur Discord." },
-        { q:"Quelle IA utilise le bot ?", a:"MaximeGPT utilise <strong>Groq</strong> (LLaMA) pour les conversations et batailles IA, <strong>HuggingFace</strong> pour la génération d'images, <strong>Suno AI</strong> pour la création musicale, et <strong>Audd</strong> pour la reconnaissance musicale via <code>!shazam</code>." },
-        { q:"Mes données sont-elles sécurisées ?", a:"Oui. Toutes les données sont stockées dans une base MongoDB chiffrée avec une clé de chiffrement les protégeant au repos. Le contenu des messages n'est jamais stocké — uniquement traité en temps réel." },
-        { q:"Comment supprimer mes données ?", a:"Envoie un email à <strong>admin@maximegpt.com</strong> avec ton pseudo Discord et l'ID de ton serveur. Nous traiterons la suppression sous 72h." },
-        { q:"Le bot ne répond pas. Que faire ?", a:"Vérifie que le bot a les permissions nécessaires dans le canal de ton serveur. Si le problème persiste, rejoins notre serveur de support via le lien en bas de page." },
-        { q:"Quelles langues le bot supporte-t-il ?", a:"MaximeGPT supporte le <strong>français, l'anglais et l'espagnol</strong>. Utilise <code>!help fr</code> ou <code>!help es</code> pour changer de langue." },
-        { q:"À quoi sert la commande !setup ?", a:"Elle permet aux administrateurs de serveur de configurer des clés API optionnelles (Groq, Suno, HuggingFace) pour débloquer les fonctionnalités IA avancées. Réservé aux admins." },
-      ],
-      es: [
-        { q:"¿MaximeGPT es gratuito?", a:"Sí, completamente gratuito. Sin suscripción, sin tarifas ocultas. Solo añade el bot a tu servidor y usa todas las funciones." },
-        { q:"¿Cómo añado MaximeGPT a mi servidor?", a:"Haz clic en el botón <strong>Añadir al servidor</strong> en la parte superior de esta página. Necesitas tener el permiso 'Gestionar servidor' en tu servidor de Discord." },
-        { q:"¿Qué IA usa el bot?", a:"MaximeGPT usa <strong>Groq</strong> (LLaMA) para conversaciones y batallas IA, <strong>HuggingFace</strong> para generación de imágenes, <strong>Suno AI</strong> para creación musical, y <strong>Audd</strong> para reconocimiento musical con <code>!shazam</code>." },
-        { q:"¿Están seguros mis datos?", a:"Sí. Todos los datos se almacenan en una base de datos MongoDB cifrada con una clave de cifrado que los protege en reposo. El contenido de los mensajes nunca se almacena — solo se procesa en tiempo real." },
-        { q:"¿Cómo elimino mis datos?", a:"Envía un correo a <strong>admin@maximegpt.com</strong> con tu nombre de usuario de Discord y el ID del servidor. Procesaremos la eliminación en 72 horas." },
-        { q:"El bot no responde. ¿Qué hago?", a:"Asegúrate de que el bot tiene los permisos necesarios en el canal de tu servidor. Si el problema persiste, únete a nuestro servidor de soporte desde el enlace del pie de página." },
-        { q:"¿Qué idiomas soporta el bot?", a:"MaximeGPT soporta <strong>francés, inglés y español</strong>. Usa <code>!help fr</code> o <code>!help es</code> para cambiar de idioma." },
-        { q:"¿Para qué sirve el comando !setup?", a:"Permite a los administradores del servidor configurar claves API opcionales (Groq, Suno, HuggingFace) para desbloquear funciones IA avanzadas. Solo para admins." },
-      ],
-    };
-
-    function buildFaq(lang) {
-      const list = document.getElementById('faq-list');
-      const items = faqData[lang] || faqData.en;
-      list.innerHTML = items.map((item, i) => `
-        <div class="faq-item reveal">
-          <button class="faq-q" onclick="toggleFaq(this)">
-            <span>${item.q}</span><span class="faq-icon">+</span>
-          </button>
-          <div class="faq-a"><p>${item.a}</p></div>
-        </div>`).join('');
-    }
-    function toggleFaq(btn) {
-      const item = btn.closest('.faq-item');
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
-    }
-
     /* ── NAVBAR ── */
     function toggleNav() {
       document.getElementById('nav-links').classList.toggle('open');
@@ -1279,13 +1274,6 @@
       const nav = document.getElementById('navbar');
       if (!nav.contains(e.target)) document.getElementById('nav-links').classList.remove('open');
     });
-
-    const origSetLang2 = window.setLang || setLang;
-    const _setLangBase = setLang;
-    window._setLangWithFaq = function(lang) {
-      _setLangBase(lang);
-      buildFaq(lang);
-    };
 
     const sections = ['hero','features','commands','faq'];
     window.addEventListener('scroll', () => {
