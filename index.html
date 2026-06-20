@@ -917,14 +917,7 @@
       <div class="cmd-group reveal">
         <p class="cmd-group-title">🎵 <span data-i18n="grp_music">Music — Suno AI</span></p>
         <ul class="cmd-list">
-          <li><code>!music generator &lt;prompt&gt;</code><span class="cmd-desc" data-i18n="c_mgen">Style, mood, lyrics 🎶</span>
-            <div class="music-prompts">
-              <div class="music-prompt-item">lo-fi hip hop beats, rainy day, chill, vinyl crackle</div>
-              <div class="music-prompt-item">upbeat rock anthem, electric guitar riffs, powerful drums</div>
-              <div class="music-prompt-item">dark synthwave, neon lights, midnight drive, 80s retro</div>
-              <div class="music-prompt-item">smooth jazz, saxophone, late night club, soft brushed drums</div>
-            </div>
-          </li>
+          <li><code>!music generator &lt;prompt&gt;</code><span class="cmd-desc" data-i18n="c_mgen">Style, mood, lyrics 🎶</span></li>
           <li><code>!music prompt</code><span class="cmd-desc" data-i18n="c_mprompt">Style examples 💡</span></li>
           <li><code>!balance</code><span class="cmd-desc" data-i18n="c_balance">Remaining Suno credits 💳</span></li>
         </ul>
@@ -938,20 +931,7 @@
           <li><code>!voice stop</code> / <code>!voice resume</code><span class="cmd-desc" data-i18n="c_vstop">Pause / resume</span></li>
           <li><code>!subtitles</code><span class="cmd-desc" data-i18n="c_subs">Live subtitles 📝</span></li>
           <li><code>!radio list</code><span class="cmd-desc" data-i18n="c_rlist">List of radio stations 📻</span></li>
-          <li><code>!radio &lt;name&gt;</code><span class="cmd-desc" data-i18n="c_radio">e.g. <em>!radio nrj</em></span>
-            <div class="radio-chips">
-              <span class="radio-chip">nrj <span class="chip-genre">Pop/Hits</span></span>
-              <span class="radio-chip">fun <span class="chip-genre">Dance</span></span>
-              <span class="radio-chip">rtl <span class="chip-genre">News</span></span>
-              <span class="radio-chip">europe1 <span class="chip-genre">Talk</span></span>
-              <span class="radio-chip">skyrock <span class="chip-genre">Hip-Hop</span></span>
-              <span class="radio-chip">franceinter <span class="chip-genre">Culture</span></span>
-              <span class="radio-chip">musique <span class="chip-genre">Classical</span></span>
-              <span class="radio-chip">virgin <span class="chip-genre">Rock</span></span>
-              <span class="radio-chip">nostalgie <span class="chip-genre">Oldies</span></span>
-              <span class="radio-chip">cherie <span class="chip-genre">Love</span></span>
-            </div>
-          </li>
+          <li><code>!radio &lt;name&gt;</code><span class="cmd-desc" data-i18n="c_radio">e.g. <em>!radio nrj</em></span></li>
           <li><code>!youtube &lt;url&gt;</code><span class="cmd-desc" data-i18n="c_yt">Play a YouTube video 🎬</span></li>
           <li><code>!np</code><span class="cmd-desc" data-i18n="c_np">Now playing</span></li>
           <li><code>!radio leave</code><span class="cmd-desc" data-i18n="c_rleave">Disconnect radio</span></li>
@@ -1487,12 +1467,14 @@
       if (!list) return;
       const items = faqData[lang] || faqData.en;
       list.innerHTML = items.map(item => `
-        <div class="faq-item reveal">
+        <div class="faq-item reveal visible">
           <button class="faq-q" onclick="toggleFaq(this)">
             <span>${item.q}</span><span class="faq-icon">+</span>
           </button>
           <div class="faq-a"><p>${item.a}</p></div>
         </div>`).join('');
+      // Force-reveal the FAQ section title/label (dynamically injected — observer misses them)
+      document.querySelectorAll('#faq .reveal').forEach(el => el.classList.add('visible'));
     }
 
     setLang('en');
