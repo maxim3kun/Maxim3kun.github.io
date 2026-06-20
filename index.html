@@ -1321,16 +1321,20 @@
     /* ── LOADER DISMISS ── */
     (function() {
       const loader = document.getElementById('loader');
+      let hidden = false;
       function hideLoader() {
+        if (hidden) return;
+        hidden = true;
         loader.classList.add('hidden');
-        setTimeout(() => loader.remove(), 700);
+        setTimeout(() => { if (loader.parentNode) loader.remove(); }, 700);
       }
+      /* Safety net: force-hide after 3s no matter what */
+      setTimeout(hideLoader, 3000);
+      /* Normal path: hide 400ms after load event */
       if (document.readyState === 'complete') {
-        setTimeout(hideLoader, 1700);
+        setTimeout(hideLoader, 400);
       } else {
-        window.addEventListener('load', function() {
-          setTimeout(hideLoader, 400);
-        });
+        window.addEventListener('load', () => setTimeout(hideLoader, 400));
       }
     })();
   </script>
