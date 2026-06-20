@@ -186,6 +186,22 @@
     #contact-status.ok  { background: rgba(34,197,94,.12); color: #4ade80; display: block; }
     #contact-status.err { background: rgba(239,68,68,.12);  color: #f87171; display: block; }
     .contact-note { font-size: .75rem; color: rgba(180,180,200,.5); text-align: center; margin-top: .3rem; }
+    .ctabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+    .ctab {
+      flex: 1; background: rgba(255,255,255,.04); border: 1px solid rgba(168,85,247,.2);
+      border-radius: 8px; padding: .6rem 1rem; color: var(--grey);
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .85rem;
+      letter-spacing: .05em; cursor: pointer; transition: all .2s; text-align: center;
+    }
+    .ctab.active { background: rgba(124,58,237,.2); border-color: var(--purple-neon); color: var(--white); }
+    .ctab:hover:not(.active) { background: rgba(168,85,247,.08); color: var(--white); }
+    .badge-fast {
+      background: #22c55e; color: #fff; font-size: .62rem; font-weight: 700;
+      padding: .1rem .45rem; border-radius: 999px; margin-left: .35rem;
+      vertical-align: middle; letter-spacing: .04em; font-family: 'Inter', sans-serif;
+    }
+    .ctab-panel { display: none; }
+    .ctab-panel.active { display: block; }
 
     /* ── HERO ── */
     #hero {
@@ -699,6 +715,7 @@
       <a class="nav-link" href="#features" data-i18n="nav_features">Features</a>
       <a class="nav-link" href="#commands" data-i18n="nav_commands">Commands</a>
       <a class="nav-link" href="#faq"      data-i18n="nav_faq">FAQ</a>
+      <a class="nav-link" href="#" onclick="openModal('contact');document.getElementById('nav-links').classList.remove('open');return false;" data-i18n="nav_contact">Contact</a>
     </div>
     <div id="lang-bar">
       <button class="lang-btn active" onclick="setLang('en')">EN</button>
@@ -933,31 +950,6 @@
 
   <div class="divider"></div>
 
-  <!-- CONTACT -->
-  <section id="contact">
-    <p class="section-label reveal" data-i18n="contact_label">CONTACT</p>
-    <h2 class="section-title reveal" data-i18n="contact_title">Send me a <span>Message</span></h2>
-    <form class="contact-form reveal" onsubmit="submitContact(event)">
-      <div class="contact-field">
-        <label data-i18n="contact_name_label">Your Discord username</label>
-        <input type="text" id="contact-name" maxlength="80"
-               data-i18n-placeholder="contact_name_ph" placeholder="e.g. maxim3kun" required autocomplete="off">
-      </div>
-      <div class="contact-field">
-        <label data-i18n="contact_msg_label">Message</label>
-        <textarea id="contact-msg" maxlength="1000"
-                  data-i18n-placeholder="contact_msg_ph" placeholder="Write your message here…" required></textarea>
-      </div>
-      <!-- honeypot — invisible to humans, filled by bots -->
-      <input type="text" id="contact-hp" style="display:none" tabindex="-1" autocomplete="off">
-      <div id="contact-status"></div>
-      <button type="submit" class="contact-submit" id="contact-btn" data-i18n="contact_send">Send</button>
-      <p class="contact-note" data-i18n="contact_note">Max 3 messages per hour · No spam</p>
-    </form>
-  </section>
-
-  <div class="divider"></div>
-
   <!-- FOOTER -->
   <footer>
     <div class="footer-top">
@@ -970,7 +962,7 @@
         <ul>
           <li><a href="https://discord.gg/7xAZtazFze" target="_blank">💬 <span data-i18n="footer_support">Support Server</span></a></li>
           <li><a href="https://discord.gg/7xAZtazFze" target="_blank">🎫 <span data-i18n="footer_portal">Assistance Portal</span></a></li>
-          <li><a href="mailto:admin@maximegpt.com">📧 <span data-i18n="footer_contact">Contact Us</span></a></li>
+          <li><a href="#" onclick="openModal('contact');return false;">📧 <span data-i18n="footer_contact">Contact Us</span></a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -1014,6 +1006,66 @@
         <button class="modal-close" onclick="closeModal('modal-bugs')">✕</button>
         <h2 data-i18n="footer_bugs">Bug Bounty Program</h2>
         <div id="bugs-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT MODAL -->
+  <div class="modal-overlay" id="modal-contact" onclick="closeModalOutside(event,'modal-contact')">
+    <div class="modal-box-wrap">
+      <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('modal-contact')">✕</button>
+        <h2 data-i18n="nav_contact">Contact</h2>
+        <div class="ctabs">
+          <button class="ctab active" id="ctab-btn-discord" onclick="switchContactTab('discord')">
+            💬 Discord <span class="badge-fast" data-i18n="ctab_fast">Faster reply</span>
+          </button>
+          <button class="ctab" id="ctab-btn-email" onclick="switchContactTab('email')" data-i18n="ctab_email">📧 Email</button>
+        </div>
+
+        <!-- Discord tab -->
+        <div class="ctab-panel active" id="ctab-discord">
+          <form class="contact-form" onsubmit="submitContactModal(event)">
+            <div class="contact-field">
+              <label data-i18n="contact_name_label">Ton pseudo Discord</label>
+              <input type="text" id="m-contact-name" maxlength="80"
+                     data-i18n-placeholder="contact_name_ph" placeholder="e.g. maxim3kun" required autocomplete="off">
+            </div>
+            <div class="contact-field">
+              <label data-i18n="contact_msg_label">Message</label>
+              <textarea id="m-contact-msg" maxlength="1000"
+                        data-i18n-placeholder="contact_msg_ph" placeholder="Write your message here…" required></textarea>
+            </div>
+            <input type="text" id="m-contact-hp" style="display:none" tabindex="-1" autocomplete="off">
+            <div id="m-contact-status" class="contact-note" style="display:none"></div>
+            <button type="submit" class="contact-submit" id="m-contact-btn" data-i18n="contact_send">Send</button>
+            <p class="contact-note" data-i18n="contact_note">Max 3 messages per hour · No spam</p>
+          </form>
+        </div>
+
+        <!-- Email tab -->
+        <div class="ctab-panel" id="ctab-email">
+          <form class="contact-form" onsubmit="submitEmail(event)">
+            <div class="contact-field">
+              <label data-i18n="email_reply_label">Your email (for my reply)</label>
+              <input type="email" id="m-email-from" maxlength="120"
+                     data-i18n-placeholder="email_reply_ph" placeholder="you@example.com" required>
+            </div>
+            <div class="contact-field">
+              <label data-i18n="email_discord_label">Discord username (optional)</label>
+              <input type="text" id="m-email-discord" maxlength="80"
+                     data-i18n-placeholder="contact_name_ph" placeholder="e.g. maxim3kun">
+            </div>
+            <div class="contact-field">
+              <label data-i18n="contact_msg_label">Message</label>
+              <textarea id="m-email-msg" maxlength="2000"
+                        data-i18n-placeholder="contact_msg_ph" placeholder="Write your message here…" required></textarea>
+            </div>
+            <button type="submit" class="contact-submit" data-i18n="email_send">Open my email app</button>
+            <p class="contact-note" data-i18n="email_note">Opens your mail app · Reply may take 24–48h</p>
+          </form>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1117,7 +1169,7 @@
         c_qstats:"Statistics 📊", c_qremind:"Enable reminders 📍", c_qsched:"Schedule ⏰", c_qreset:"Reset",
         c_aibattle:"AI battle on a topic 🥊", c_aistop:"Stop the battle", c_credits:"Credits ✨",
         c_helpfr:"Help in French or Spanish", c_admin:"Moderator commands 🔧", c_setup:"API keys & secrets",
-        nav_home:"Home", nav_features:"Features", nav_commands:"Commands", nav_faq:"FAQ",
+        nav_home:"Home", nav_features:"Features", nav_commands:"Commands", nav_faq:"FAQ", nav_contact:"Contact",
         faq_label:"FAQ", faq_title:"Frequently Asked <span>Questions</span>",
         contact_label:"CONTACT", contact_title:'Send me a <span>Message</span>',
         contact_name_label:"Your Discord username", contact_name_ph:"e.g. maxim3kun",
@@ -1127,6 +1179,11 @@
         contact_err:"Failed to send. Try again or DM me directly.",
         contact_rate:"Slow down! Max 3 messages per hour.",
         contact_spam:"Spam detected. Message blocked.",
+        ctab_fast:"Faster reply", ctab_email:"📧 Email",
+        email_reply_label:"Your email (for my reply)", email_reply_ph:"you@example.com",
+        email_discord_label:"Discord username (optional)",
+        email_send:"Open my email app",
+        email_note:"Opens your mail app · Reply may take 24–48h",
         footer_sub:"Your Discord Partner. One bot. Endless possibilities.",
         footer_community:"Community", footer_legal_title:"Legal",
         footer_support:"Support Server", footer_portal:"Assistance Portal",
@@ -1167,7 +1224,7 @@
         c_qstats:"Statistiques 📊", c_qremind:"Activer les rappels 📍", c_qsched:"Planifier ⏰", c_qreset:"Réinitialiser",
         c_aibattle:"Bataille IA sur un sujet 🥊", c_aistop:"Stopper la bataille", c_credits:"Crédits ✨",
         c_helpfr:"Aide en français ou espagnol", c_admin:"Commandes modérateur 🔧", c_setup:"Clés API & secrets",
-        nav_home:"Accueil", nav_features:"Fonctionnalités", nav_commands:"Commandes", nav_faq:"FAQ",
+        nav_home:"Accueil", nav_features:"Fonctionnalités", nav_commands:"Commandes", nav_faq:"FAQ", nav_contact:"Contact",
         faq_label:"FAQ", faq_title:"Questions <span>fréquentes</span>",
         contact_label:"CONTACT", contact_title:'Envoie-moi un <span>Message</span>',
         contact_name_label:"Ton pseudo Discord", contact_name_ph:"ex : maxim3kun",
@@ -1177,6 +1234,11 @@
         contact_err:"Échec de l'envoi. Réessaie ou contacte-moi directement.",
         contact_rate:"Doucement ! Max 3 messages par heure.",
         contact_spam:"Spam détecté. Message bloqué.",
+        ctab_fast:"Réponse rapide", ctab_email:"📧 Email",
+        email_reply_label:"Ton email (pour ma réponse)", email_reply_ph:"toi@exemple.com",
+        email_discord_label:"Pseudo Discord (optionnel)",
+        email_send:"Ouvrir mon application mail",
+        email_note:"Ouvre ton app mail · Réponse sous 24–48h",
         footer_sub:"Votre partenaire Discord. Un bot. Des possibilités infinies.",
         footer_community:"Communauté", footer_legal_title:"Légal",
         footer_support:"Serveur de support", footer_portal:"Portail d'assistance",
@@ -1217,7 +1279,7 @@
         c_qstats:"Estadísticas 📊", c_qremind:"Activar recordatorios 📍", c_qsched:"Programar ⏰", c_qreset:"Reiniciar",
         c_aibattle:"Batalla IA sobre un tema 🥊", c_aistop:"Detener la batalla", c_credits:"Créditos ✨",
         c_helpfr:"Ayuda en francés o español", c_admin:"Comandos de moderador 🔧", c_setup:"Claves API & secretos",
-        nav_home:"Inicio", nav_features:"Funciones", nav_commands:"Comandos", nav_faq:"FAQ",
+        nav_home:"Inicio", nav_features:"Funciones", nav_commands:"Comandos", nav_faq:"FAQ", nav_contact:"Contacto",
         faq_label:"FAQ", faq_title:"Preguntas <span>frecuentes</span>",
         contact_label:"CONTACTO", contact_title:'Envíame un <span>Mensaje</span>',
         contact_name_label:"Tu usuario de Discord", contact_name_ph:"ej: maxim3kun",
@@ -1227,6 +1289,11 @@
         contact_err:"Error al enviar. Intenta de nuevo o contáctame directamente.",
         contact_rate:"¡Despacio! Máx 3 mensajes por hora.",
         contact_spam:"Spam detectado. Mensaje bloqueado.",
+        ctab_fast:"Respuesta rápida", ctab_email:"📧 Email",
+        email_reply_label:"Tu email (para mi respuesta)", email_reply_ph:"tu@ejemplo.com",
+        email_discord_label:"Usuario Discord (opcional)",
+        email_send:"Abrir mi aplicación de correo",
+        email_note:"Abre tu app de correo · Respuesta en 24–48h",
         footer_sub:"Tu compañero de Discord. Un bot. Posibilidades infinitas.",
         footer_community:"Comunidad", footer_legal_title:"Legal",
         footer_support:"Servidor de soporte", footer_portal:"Portal de asistencia",
@@ -1368,42 +1435,44 @@
       const b = document.querySelector('.lang-btn.active');
       return b ? b.textContent.trim().toLowerCase() : 'en';
     }
-    function contactT(key) {
-      return (translations[getLang()] || translations.en)[key] || '';
-    }
 
-    function setContactStatus(msg, type) {
-      const s = document.getElementById('contact-status');
+    function setModalContactStatus(msg, type) {
+      const s = document.getElementById('m-contact-status');
       s.textContent = msg;
-      s.className = type; // 'ok' or 'err'
+      s.style.display = 'block';
+      s.style.color = type === 'ok' ? '#4ade80' : '#f87171';
+      s.style.background = type === 'ok' ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)';
+      s.style.padding = '.5rem'; s.style.borderRadius = '8px'; s.style.textAlign = 'center';
     }
 
-    async function submitContact(e) {
+    function switchContactTab(tab) {
+      document.querySelectorAll('.ctab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+      document.getElementById('ctab-' + tab).classList.add('active');
+      document.getElementById('ctab-btn-' + tab).classList.add('active');
+    }
+
+    async function submitContactModal(e) {
       e.preventDefault();
       const t = translations[getLang()] || translations.en;
 
-      // Honeypot check
-      if (document.getElementById('contact-hp').value) {
-        setContactStatus(t.contact_spam, 'err'); return;
+      if (document.getElementById('m-contact-hp').value) {
+        setModalContactStatus(t.contact_spam, 'err'); return;
       }
 
-      // Rate limit — max 3 per hour via localStorage
       const RL_KEY = 'mgpt_contact_rl';
       const now = Date.now();
       let attempts = JSON.parse(localStorage.getItem(RL_KEY) || '[]');
       attempts = attempts.filter(ts => now - ts < 3600000);
       if (attempts.length >= 3) {
-        setContactStatus(t.contact_rate, 'err'); return;
+        setModalContactStatus(t.contact_rate, 'err'); return;
       }
 
-      const name = document.getElementById('contact-name').value.trim();
-      const msg  = document.getElementById('contact-msg').value.trim();
+      const name = document.getElementById('m-contact-name').value.trim();
+      const msg  = document.getElementById('m-contact-msg').value.trim();
+      const safe = s => s.replace(/@(everyone|here)/gi, '[@$1]').replace(/<@[!&]?\d+>/g, '[mention]');
 
-      // Sanitize: strip @everyone / @here / role mentions
-      const safe = s => s.replace(/@(everyone|here)/gi, '[@$1]')
-                         .replace(/<@[!&]?\d+>/g, '[mention]');
-
-      const btn = document.getElementById('contact-btn');
+      const btn = document.getElementById('m-contact-btn');
       btn.disabled = true;
 
       try {
@@ -1416,7 +1485,7 @@
               title: '📬 Nouveau message — MaximeGPT.com',
               fields: [
                 { name: '👤 Discord', value: safe(name).slice(0, 256), inline: true },
-                { name: '🌐 Langue', value: getLang().toUpperCase(), inline: true },
+                { name: '🌐 Langue',  value: getLang().toUpperCase(), inline: true },
                 { name: '💬 Message', value: safe(msg).slice(0, 1000) },
               ],
               footer: { text: `maximegpt.com · ${new Date().toUTCString()}` }
@@ -1427,17 +1496,29 @@
         if (res.ok || res.status === 204) {
           attempts.push(now);
           localStorage.setItem(RL_KEY, JSON.stringify(attempts));
-          setContactStatus(t.contact_ok, 'ok');
-          document.getElementById('contact-name').value = '';
-          document.getElementById('contact-msg').value  = '';
+          setModalContactStatus(t.contact_ok, 'ok');
+          document.getElementById('m-contact-name').value = '';
+          document.getElementById('m-contact-msg').value  = '';
         } else {
-          setContactStatus(t.contact_err, 'err');
+          setModalContactStatus(t.contact_err, 'err');
         }
       } catch {
-        setContactStatus(t.contact_err, 'err');
+        setModalContactStatus(t.contact_err, 'err');
       } finally {
         btn.disabled = false;
       }
+    }
+
+    function submitEmail(e) {
+      e.preventDefault();
+      const from    = document.getElementById('m-email-from').value.trim();
+      const discord = document.getElementById('m-email-discord').value.trim();
+      const msg     = document.getElementById('m-email-msg').value.trim();
+      // address obfuscated — never in plain text in HTML
+      const addr = atob('YWRtaW5AbWF4aW1lZ3B0LmNvbQ==');
+      const discordLine = discord ? `\nDiscord: ${discord}` : '';
+      const body = `De / From: ${from}${discordLine}\n\n${msg}`;
+      window.open(`mailto:${addr}?subject=${encodeURIComponent('Contact via MaximeGPT.com')}&body=${encodeURIComponent(body)}`);
     }
 
     /* ── NAVBAR ── */
