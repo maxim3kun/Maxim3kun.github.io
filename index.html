@@ -1433,34 +1433,52 @@
     /* ── FAQ DATA (must be before setLang) ── */
     const faqData = {
       en: [
-        { q:"Is MaximeGPT free?", a:"Yes, completely free. No subscription, no hidden fees. Just add the bot to your server and use all features." },
-        { q:"How do I add MaximeGPT to my server?", a:"Click the <strong>Add to Server</strong> button at the top of this page. You need to have the 'Manage Server' permission on your Discord server." },
-        { q:"What AI does the bot use?", a:"MaximeGPT uses <strong>Groq</strong> (LLaMA) for conversations and AI battles, <strong>HuggingFace</strong> for image generation, <strong>Suno AI</strong> for music creation, and <strong>Audd</strong> for song recognition via <code>!shazam</code>." },
-        { q:"Is my data secure?", a:"Yes. All data is stored in an encrypted MongoDB database with an encryption key protecting it at rest. Message content is never stored — only processed in real time." },
+        { q:"Is MaximeGPT free?", a:"Yes, completely free. No subscription, no hidden fees. Just add the bot to your server and use all features instantly." },
+        { q:"How do I add MaximeGPT to my server?", a:"Click the <strong>Add to Server</strong> button at the top of this page. You need the 'Manage Server' permission on your Discord server." },
+        { q:"What mini-games are available?", a:"MaximeGPT includes <strong>Minesweeper</strong> (easy / medium / hard), <strong>GeoGuessr</strong> (guess the country from a city name), <strong>Trivia</strong> (AI-generated questions, 4 choices, 30s), <strong>Guess the Number</strong> (1–100, 7 attempts), and <strong>Connect 4</strong> (multiplayer or solo vs the bot)." },
+        { q:"How does AI Battle work?", a:"Use <code>!ai battle &lt;topic&gt;</code> to launch a 3-round debate between two AI bots — one argues <strong>FOR</strong>, the other <strong>AGAINST</strong>. At the end, an AI judge analyses the arguments and crowns the winner. Requires a second bot token and a Groq API key (configured via <code>!setup</code>)." },
+        { q:"How do I generate music?", a:"Use <code>!music generator &lt;prompt&gt;</code> and describe the style, mood and lyrics you want. Examples: <em>lo-fi hip hop beats, rainy day, chill</em> or <em>dark synthwave, neon lights, 80s retro</em>. The bot generates a ~30–60s song via Suno AI. Use <code>!music prompt</code> to see more style examples." },
+        { q:"Which radio stations are available?", a:"10 live stations: <strong>NRJ</strong> (Pop), <strong>Fun Radio</strong> (Dance), <strong>RTL</strong> (News), <strong>Europe 1</strong> (Talk), <strong>Skyrock</strong> (Hip-Hop), <strong>France Inter</strong> (Culture), <strong>France Musique</strong> (Classical), <strong>Virgin Radio</strong> (Rock), <strong>Nostalgie</strong> (Oldies), <strong>Chérie FM</strong> (Love). Start one with <code>!radio nrj</code> for example." },
+        { q:"How does the voice feature work?", a:"Use <code>!join</code> to bring the bot into your voice channel. It uses <strong>Google TTS</strong> to speak aloud and <strong>Groq Whisper</strong> to transcribe what you say in real time. Mention the bot by voice and it replies out loud. Use <code>!subtitles</code> to toggle live captions, and <code>!voice say &lt;text&gt;</code> to make it read any text." },
+        { q:"Can I use the bot in DMs?", a:"Yes! You can chat with the bot directly in DMs by mentioning it (<code>@bot &lt;message&gt;</code>). AI responses work in private messages." },
+        { q:"What AI does the bot use?", a:"MaximeGPT uses <strong>Groq</strong> (Meta LLaMA 3.1) for conversations and AI battles, <strong>HuggingFace FLUX</strong> for image generation via <code>!image</code>, and <strong>Suno AI</strong> for music creation via <code>!music generator</code>. Voice uses Google TTS + Groq Whisper STT." },
+        { q:"Is my data secure?", a:"Yes. Only Discord user IDs, server IDs, birthday dates and quest progress are stored — in an encrypted MongoDB database. Message content is never stored, only processed in real time." },
         { q:"How do I delete my data?", a:"Send an email to <strong>admin@maximegpt.com</strong> with your Discord username and server ID. We'll process the deletion within 72 hours." },
-        { q:"The bot isn't responding. What do I do?", a:"Make sure the bot has the necessary permissions in your server channel. If the problem persists, join our support server via the footer link." },
-        { q:"What languages does the bot support?", a:"MaximeGPT supports <strong>French, English, and Spanish</strong>. Use <code>!help fr</code> or <code>!help es</code> to switch language." },
-        { q:"What is the !setup command for?", a:"It allows server administrators to configure optional API keys (Groq, Suno, HuggingFace) to unlock advanced AI features. It's only for admins." },
+        { q:"The bot isn't responding. What do I do?", a:"Check that the bot has the required permissions in your channel (Read Messages, Send Messages, Connect for voice). Make sure the following intents are enabled in the Discord Developer Portal: <strong>Message Content</strong>, <strong>Server Members</strong>, and <strong>Voice</strong>. Still stuck? Join our support server." },
+        { q:"What languages does the bot support?", a:"MaximeGPT supports <strong>French, English, and Spanish</strong>. Append <code>fr</code> or <code>es</code> to most commands (e.g. <code>!joke fr</code>) or use <code>!help fr</code> to get the full help page in French." },
+        { q:"What is the !setup command for?", a:"It lets server admins configure optional API keys (Groq, Suno AI, HuggingFace) to unlock advanced features. Without keys, basic commands still work. Run <code>!help setup</code> for the full guide." },
       ],
       fr: [
         { q:"MaximeGPT est-il gratuit ?", a:"Oui, entièrement gratuit. Pas d'abonnement, pas de frais cachés. Ajoute simplement le bot à ton serveur et utilise toutes les fonctionnalités." },
         { q:"Comment ajouter MaximeGPT à mon serveur ?", a:"Clique sur le bouton <strong>Ajouter au serveur</strong> en haut de cette page. Tu dois avoir la permission 'Gérer le serveur' sur ton serveur Discord." },
-        { q:"Quelle IA utilise le bot ?", a:"MaximeGPT utilise <strong>Groq</strong> (LLaMA) pour les conversations et batailles IA, <strong>HuggingFace</strong> pour la génération d'images, <strong>Suno AI</strong> pour la création musicale, et <strong>Audd</strong> pour la reconnaissance musicale via <code>!shazam</code>." },
-        { q:"Mes données sont-elles sécurisées ?", a:"Oui. Toutes les données sont stockées dans une base MongoDB chiffrée avec une clé de chiffrement les protégeant au repos. Le contenu des messages n'est jamais stocké — uniquement traité en temps réel." },
+        { q:"Quels mini-jeux sont disponibles ?", a:"MaximeGPT propose le <strong>Démineur</strong> (facile / moyen / difficile), le <strong>GeoGuessr</strong> (devine le pays d'une ville), le <strong>Trivia</strong> (quiz IA, 4 choix, 30s), le <strong>Juste Prix</strong> (1–100, 7 tentatives) et le <strong>Puissance 4</strong> (multijoueur ou solo contre le bot)." },
+        { q:"Comment fonctionne la Bataille IA ?", a:"Utilise <code>!ai battle &lt;sujet&gt;</code> pour lancer un débat en 3 rounds entre deux bots IA — l'un argumente <strong>POUR</strong>, l'autre <strong>CONTRE</strong>. À la fin, un juge IA analyse les arguments et désigne le vainqueur. Nécessite un second token bot et une clé Groq (via <code>!setup</code>)." },
+        { q:"Comment générer de la musique ?", a:"Utilise <code>!music generator &lt;prompt&gt;</code> en décrivant le style, l'ambiance et les paroles souhaités. Exemples : <em>lo-fi hip hop beats, journée pluvieuse, chill</em> ou <em>dark synthwave, lumières néon, rétro 80s</em>. Le bot génère un morceau de ~30–60s via Suno AI. Tape <code>!music prompt</code> pour voir des exemples de styles." },
+        { q:"Quelles stations radio sont disponibles ?", a:"10 stations en direct : <strong>NRJ</strong> (Pop), <strong>Fun Radio</strong> (Dance), <strong>RTL</strong> (News), <strong>Europe 1</strong> (Talk), <strong>Skyrock</strong> (Hip-Hop), <strong>France Inter</strong> (Culture), <strong>France Musique</strong> (Classique), <strong>Virgin Radio</strong> (Rock), <strong>Nostalgie</strong> (Oldies), <strong>Chérie FM</strong> (Love). Lance-en une avec <code>!radio nrj</code> par exemple." },
+        { q:"Comment fonctionne la fonction Voix ?", a:"Utilise <code>!join</code> pour que le bot rejoigne ton salon vocal. Il utilise <strong>Google TTS</strong> pour parler à voix haute et <strong>Groq Whisper</strong> pour transcrire ce que tu dis en temps réel. Mentionne le bot à voix haute et il répond oralement. Utilise <code>!subtitles</code> pour activer les sous-titres en direct et <code>!voice say &lt;texte&gt;</code> pour lui faire lire n'importe quel texte." },
+        { q:"Peut-on utiliser le bot en DM ?", a:"Oui ! Tu peux discuter avec le bot directement en messages privés en le mentionnant (<code>@bot &lt;message&gt;</code>). Les réponses IA fonctionnent en DM." },
+        { q:"Quelle IA utilise le bot ?", a:"MaximeGPT utilise <strong>Groq</strong> (Meta LLaMA 3.1) pour les conversations et batailles IA, <strong>HuggingFace FLUX</strong> pour la génération d'images via <code>!image</code>, et <strong>Suno AI</strong> pour la création musicale. La voix utilise Google TTS + Groq Whisper STT." },
+        { q:"Mes données sont-elles sécurisées ?", a:"Oui. Seuls les IDs Discord, les dates d'anniversaire et la progression des quêtes sont stockés — dans une base MongoDB chiffrée. Le contenu des messages n'est jamais stocké, uniquement traité en temps réel." },
         { q:"Comment supprimer mes données ?", a:"Envoie un email à <strong>admin@maximegpt.com</strong> avec ton pseudo Discord et l'ID de ton serveur. Nous traiterons la suppression sous 72h." },
-        { q:"Le bot ne répond pas. Que faire ?", a:"Vérifie que le bot a les permissions nécessaires dans le canal de ton serveur. Si le problème persiste, rejoins notre serveur de support via le lien en bas de page." },
-        { q:"Quelles langues le bot supporte-t-il ?", a:"MaximeGPT supporte le <strong>français, l'anglais et l'espagnol</strong>. Utilise <code>!help fr</code> ou <code>!help es</code> pour changer de langue." },
-        { q:"À quoi sert la commande !setup ?", a:"Elle permet aux administrateurs de serveur de configurer des clés API optionnelles (Groq, Suno, HuggingFace) pour débloquer les fonctionnalités IA avancées. Réservé aux admins." },
+        { q:"Le bot ne répond pas. Que faire ?", a:"Vérifie que le bot a les permissions nécessaires dans le canal (Lire les messages, Envoyer des messages, Se connecter pour la voix). Assure-toi que les intents <strong>Message Content</strong>, <strong>Server Members</strong> et <strong>Voice</strong> sont activés dans le portail développeur Discord. Toujours bloqué ? Rejoins notre serveur de support." },
+        { q:"Quelles langues le bot supporte-t-il ?", a:"MaximeGPT supporte le <strong>français, l'anglais et l'espagnol</strong>. Ajoute <code>fr</code> ou <code>es</code> à la plupart des commandes (ex : <code>!joke fr</code>) ou utilise <code>!help fr</code> pour l'aide complète en français." },
+        { q:"À quoi sert la commande !setup ?", a:"Elle permet aux admins de configurer des clés API optionnelles (Groq, Suno AI, HuggingFace) pour débloquer les fonctionnalités avancées. Sans clés, les commandes de base fonctionnent quand même. Tape <code>!help setup</code> pour le guide complet." },
       ],
       es: [
-        { q:"¿MaximeGPT es gratuito?", a:"Sí, completamente gratuito. Sin suscripción, sin tarifas ocultas. Solo añade el bot a tu servidor y usa todas las funciones." },
-        { q:"¿Cómo añado MaximeGPT a mi servidor?", a:"Haz clic en el botón <strong>Añadir al servidor</strong> en la parte superior de esta página. Necesitas tener el permiso 'Gestionar servidor' en tu servidor de Discord." },
-        { q:"¿Qué IA usa el bot?", a:"MaximeGPT usa <strong>Groq</strong> (LLaMA) para conversaciones y batallas IA, <strong>HuggingFace</strong> para generación de imágenes, <strong>Suno AI</strong> para creación musical, y <strong>Audd</strong> para reconocimiento musical con <code>!shazam</code>." },
-        { q:"¿Están seguros mis datos?", a:"Sí. Todos los datos se almacenan en una base de datos MongoDB cifrada con una clave de cifrado que los protege en reposo. El contenido de los mensajes nunca se almacena — solo se procesa en tiempo real." },
+        { q:"¿MaximeGPT es gratuito?", a:"Sí, completamente gratuito. Sin suscripción, sin tarifas ocultas. Solo añade el bot a tu servidor y usa todas las funciones al instante." },
+        { q:"¿Cómo añado MaximeGPT a mi servidor?", a:"Haz clic en el botón <strong>Añadir al servidor</strong> en la parte superior de esta página. Necesitas el permiso 'Gestionar servidor' en tu servidor de Discord." },
+        { q:"¿Qué minijuegos están disponibles?", a:"MaximeGPT incluye <strong>Buscaminas</strong> (fácil / medio / difícil), <strong>GeoGuessr</strong> (adivina el país de una ciudad), <strong>Trivia</strong> (preguntas IA, 4 opciones, 30s), <strong>Adivina el número</strong> (1–100, 7 intentos) y <strong>Conecta 4</strong> (multijugador o solo contra el bot)." },
+        { q:"¿Cómo funciona la Batalla IA?", a:"Usa <code>!ai battle &lt;tema&gt;</code> para iniciar un debate de 3 rondas entre dos bots IA — uno argumenta <strong>A FAVOR</strong>, el otro <strong>EN CONTRA</strong>. Al final, un juez IA analiza los argumentos y proclama al ganador. Requiere un segundo token de bot y una clave Groq (configurado con <code>!setup</code>)." },
+        { q:"¿Cómo genero música?", a:"Usa <code>!music generator &lt;prompt&gt;</code> describiendo el estilo, el ambiente y la letra que quieres. Ejemplos: <em>lo-fi hip hop beats, día lluvioso, chill</em> o <em>dark synthwave, luces de neón, retro 80s</em>. El bot genera una canción de ~30–60s con Suno AI. Escribe <code>!music prompt</code> para ver más ejemplos de estilos." },
+        { q:"¿Qué emisoras de radio están disponibles?", a:"10 emisoras en directo: <strong>NRJ</strong> (Pop), <strong>Fun Radio</strong> (Dance), <strong>RTL</strong> (Noticias), <strong>Europe 1</strong> (Talk), <strong>Skyrock</strong> (Hip-Hop), <strong>France Inter</strong> (Cultura), <strong>France Musique</strong> (Clásica), <strong>Virgin Radio</strong> (Rock), <strong>Nostalgie</strong> (Oldies), <strong>Chérie FM</strong> (Love). Inicia una con <code>!radio nrj</code> por ejemplo." },
+        { q:"¿Cómo funciona la función de Voz?", a:"Usa <code>!join</code> para que el bot entre en tu canal de voz. Usa <strong>Google TTS</strong> para hablar en voz alta y <strong>Groq Whisper</strong> para transcribir lo que dices en tiempo real. Menciona al bot por voz y te responde de viva voz. Usa <code>!subtitles</code> para activar subtítulos en directo y <code>!voice say &lt;texto&gt;</code> para hacerle leer cualquier texto." },
+        { q:"¿Se puede usar el bot en DMs?", a:"¡Sí! Puedes chatear con el bot directamente en mensajes privados mencionándolo (<code>@bot &lt;mensaje&gt;</code>). Las respuestas de IA funcionan en DM." },
+        { q:"¿Qué IA usa el bot?", a:"MaximeGPT usa <strong>Groq</strong> (Meta LLaMA 3.1) para conversaciones y batallas IA, <strong>HuggingFace FLUX</strong> para generación de imágenes con <code>!image</code>, y <strong>Suno AI</strong> para creación musical. La voz usa Google TTS + Groq Whisper STT." },
+        { q:"¿Están seguros mis datos?", a:"Sí. Solo se almacenan IDs de Discord, fechas de cumpleaños y progreso de misiones — en una base de datos MongoDB cifrada. El contenido de los mensajes nunca se almacena, solo se procesa en tiempo real." },
         { q:"¿Cómo elimino mis datos?", a:"Envía un correo a <strong>admin@maximegpt.com</strong> con tu nombre de usuario de Discord y el ID del servidor. Procesaremos la eliminación en 72 horas." },
-        { q:"El bot no responde. ¿Qué hago?", a:"Asegúrate de que el bot tiene los permisos necesarios en el canal de tu servidor. Si el problema persiste, únete a nuestro servidor de soporte desde el enlace del pie de página." },
-        { q:"¿Qué idiomas soporta el bot?", a:"MaximeGPT soporta <strong>francés, inglés y español</strong>. Usa <code>!help fr</code> o <code>!help es</code> para cambiar de idioma." },
-        { q:"¿Para qué sirve el comando !setup?", a:"Permite a los administradores del servidor configurar claves API opcionales (Groq, Suno, HuggingFace) para desbloquear funciones IA avanzadas. Solo para admins." },
+        { q:"El bot no responde. ¿Qué hago?", a:"Verifica que el bot tenga los permisos necesarios en el canal (Leer mensajes, Enviar mensajes, Conectar para voz). Asegúrate de que los intents <strong>Message Content</strong>, <strong>Server Members</strong> y <strong>Voice</strong> estén activados en el portal de desarrolladores de Discord. ¿Sigue sin funcionar? Únete a nuestro servidor de soporte." },
+        { q:"¿Qué idiomas soporta el bot?", a:"MaximeGPT soporta <strong>francés, inglés y español</strong>. Añade <code>fr</code> o <code>es</code> a la mayoría de comandos (ej: <code>!joke fr</code>) o usa <code>!help fr</code> para la ayuda completa en francés." },
+        { q:"¿Para qué sirve el comando !setup?", a:"Permite a los admins configurar claves API opcionales (Groq, Suno AI, HuggingFace) para desbloquear funciones avanzadas. Sin claves, los comandos básicos siguen funcionando. Escribe <code>!help setup</code> para la guía completa." },
       ],
     };
 
@@ -1538,8 +1556,7 @@
     };
 
     /* ── CONTACT FORM ── */
-    // ↓ Remplace par ton URL de webhook Discord (salon privé uniquement toi)
-    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1517694312283115552/ea5kEs7tTMf9m6TmEcYjBhkZo214FLDUlhuomfZiUrxJAMTfn6Cal7oIYe1IG7L0XLZ1';
+    const CONTACT_API = '/api/contact';
 
     function getLang() {
       const b = document.querySelector('.lang-btn.active');
@@ -1580,30 +1597,18 @@
 
       const name = document.getElementById('m-contact-name').value.trim();
       const msg  = document.getElementById('m-contact-msg').value.trim();
-      const safe = s => s.replace(/@(everyone|here)/gi, '[@$1]').replace(/<@[!&]?\d+>/g, '[mention]');
 
       const btn = document.getElementById('m-contact-btn');
       btn.disabled = true;
 
       try {
-        const res = await fetch(WEBHOOK_URL, {
+        const res = await fetch(CONTACT_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            embeds: [{
-              color: 0x7c3aed,
-              title: '📬 Nouveau message — MaximeGPT.com',
-              fields: [
-                { name: '👤 Discord', value: safe(name).slice(0, 256), inline: true },
-                { name: '🌐 Langue',  value: getLang().toUpperCase(), inline: true },
-                { name: '💬 Message', value: safe(msg).slice(0, 1000) },
-              ],
-              footer: { text: `maximegpt.com · ${new Date().toUTCString()}` }
-            }]
-          })
+          body: JSON.stringify({ name, message: msg, lang: getLang() })
         });
 
-        if (res.ok || res.status === 204) {
+        if (res.ok) {
           attempts.push(now);
           localStorage.setItem(RL_KEY, JSON.stringify(attempts));
           setModalContactStatus(t.contact_ok, 'ok');
@@ -1671,27 +1676,15 @@
       }
       const name = document.getElementById('contact2-name').value.trim();
       const msg  = document.getElementById('contact2-msg').value.trim();
-      const safe = s => s.replace(/@(everyone|here)/gi, '[@$1]').replace(/<@[!&]?\d+>/g, '[mention]');
       const btn  = document.getElementById('contact2-btn');
       btn.disabled = true;
       try {
-        const res = await fetch(WEBHOOK_URL, {
+        const res = await fetch(CONTACT_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            embeds: [{
-              color: 0x7c3aed,
-              title: '📬 Nouveau message — MaximeGPT.com',
-              fields: [
-                { name: '👤 Discord', value: safe(name).slice(0, 256), inline: true },
-                { name: '🌐 Langue',  value: getLang().toUpperCase(), inline: true },
-                { name: '💬 Message', value: safe(msg).slice(0, 1000) },
-              ],
-              footer: { text: `maximegpt.com · ${new Date().toUTCString()}` }
-            }]
-          })
+          body: JSON.stringify({ name, message: msg, lang: getLang() })
         });
-        if (res.ok || res.status === 204) {
+        if (res.ok) {
           attempts.push(now);
           localStorage.setItem(RL_KEY, JSON.stringify(attempts));
           setContact2Status(t.contact_ok, 'ok');
