@@ -1,0 +1,9 @@
+name = "maximegpt-contact"
+main = "cloudflare-worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# DISCORD_WEBHOOK_URL et ALLOWED_ORIGIN doivent être ajoutés dans le dashboard
+# Cloudflare : Workers > maximegpt-contact > Settings > Variables and Secrets
+# NE PAS mettre les valeurs ici — ce fichier est dans ton repo GitHub
