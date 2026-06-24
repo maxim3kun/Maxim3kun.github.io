@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaximeGPT Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0812;
+    --surface: #110f1e;
+    --card: #1a1730;
+    --border: #2a2545;
+    --purple: #7c3aed;
+    --purple-light: #9b5cf6;
+    --purple-glow: rgba(124, 58, 237, 0.15);
+    --text: #e2e0f0;
+    --muted: #6b6890;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--purple-light);
+    letter-spacing: 1px;
+    padding: 0 8px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .logo span { color: var(--text); }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .nav-item:hover { background: var(--purple-glow); color: var(--text); }
+  .nav-item.active { background: var(--purple-glow); color: var(--purple-light); border: 1px solid rgba(124,58,237,0.3); }
+
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    margin-left: auto;
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .page-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .page-title span {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    margin-left: 10px;
+  }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--green);
+    margin-top: 4px;
+  }
+
+  /* SECTION */
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+
+  /* COMMANDS GRID */
+  .commands-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .cmd-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.15s;
+  }
+
+  .cmd-card:hover { border-color: rgba(124,58,237,0.4); }
+  .cmd-card.disabled { opacity: 0.45; }
+
+  .cmd-emoji { font-size: 20px; width: 28px; text-align: center; }
+
+  .cmd-info { flex: 1; min-width: 0; }
+  .cmd-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cmd-tag {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* TOGGLE */
+  .toggle {
+    width: 40px; height: 22px;
+    border-radius: 11px;
+    background: var(--border);
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .toggle.on { background: var(--purple); }
+
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: white;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+
+  .toggle.on::after { transform: translateX(18px); }
+
+  /* UPTIME BAR */
+  .uptime-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+
+  .uptime-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .uptime-title { font-size: 13px; font-weight: 600; }
+  .uptime-pct { font-size: 13px; color: var(--green); font-weight: 600; }
+
+  .uptime-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .uptime-fill {
+    height: 100%;
+    width: 97%;
+    background: linear-gradient(90deg, var(--purple), var(--purple-light));
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">MAXIME<span>GPT</span></div>
+
+  <div class="nav-item active">
+    <span class="nav-icon">⚡</span> Overview
+    <div class="status-dot"></div>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">🎮</span> Commands
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">🎵</span> Music
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">🤖</span> AI Features
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon">📊</span> Stats
+  </div>
+  <div class="nav-item" style="margin-top:auto;">
+    <span class="nav-icon">🚪</span> Log out
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <div class="page-title">Overview <span>Mock data — demo mode</span></div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Servers</div>
+      <div class="stat-value">247</div>
+      <div class="stat-sub">↑ +12 this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Users</div>
+      <div class="stat-value">8.4k</div>
+      <div class="stat-sub">↑ +340 this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Commands today</div>
+      <div class="stat-value">1,203</div>
+      <div class="stat-sub" style="color:var(--purple-light)">Most used: !y</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Uptime</div>
+      <div class="stat-value">99.7%</div>
+      <div class="stat-sub">↑ Online since 3d</div>
+    </div>
+  </div>
+
+  <!-- UPTIME BAR -->
+  <div class="uptime-section">
+    <div class="uptime-header">
+      <span class="uptime-title">Bot uptime — last 30 days</span>
+      <span class="uptime-pct">97.2%</span>
+    </div>
+    <div class="uptime-bar"><div class="uptime-fill"></div></div>
+  </div>
+
+  <!-- COMMANDS -->
+  <div>
+    <div class="section-label">🎵 Music & Voice</div>
+    <div class="commands-grid">
+      <div class="cmd-card">
+        <div class="cmd-emoji">🎵</div>
+        <div class="cmd-info"><div class="cmd-name">Music</div><div class="cmd-tag">!play · !skip · !stop</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">📻</div>
+        <div class="cmd-info"><div class="cmd-name">Radio</div><div class="cmd-tag">!radio</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">▶️</div>
+        <div class="cmd-info"><div class="cmd-name">YouTube</div><div class="cmd-tag">!y</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">🎤</div>
+        <div class="cmd-info"><div class="cmd-name">Karaoke</div><div class="cmd-tag">!karaoke</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">🔊</div>
+        <div class="cmd-info"><div class="cmd-name">Voice / TTS</div><div class="cmd-tag">!tts · !voice</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">🎮 Games</div>
+    <div class="commands-grid">
+      <div class="cmd-card">
+        <div class="cmd-emoji">🔴</div>
+        <div class="cmd-info"><div class="cmd-name">Connect 4</div><div class="cmd-tag">!connect4</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">💣</div>
+        <div class="cmd-info"><div class="cmd-name">Minesweeper</div><div class="cmd-tag">!minesweeper</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">🧠</div>
+        <div class="cmd-info"><div class="cmd-name">Trivia</div><div class="cmd-tag">!trivia</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">🌍</div>
+        <div class="cmd-info"><div class="cmd-name">GeoGuessr</div><div class="cmd-tag">!geo</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card disabled">
+        <div class="cmd-emoji">🎧</div>
+        <div class="cmd-info"><div class="cmd-name">Blindtest</div><div class="cmd-tag">!blindtest</div></div>
+        <div class="toggle" onclick="this.classList.toggle('on'); this.closest('.cmd-card').classList.toggle('disabled')"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">🤖 AI Features</div>
+    <div class="commands-grid">
+      <div class="cmd-card">
+        <div class="cmd-emoji">🤖</div>
+        <div class="cmd-info"><div class="cmd-name">AI Chat (Groq)</div><div class="cmd-tag">!ai · !ask</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">⚔️</div>
+        <div class="cmd-info"><div class="cmd-name">AI Battle</div><div class="cmd-tag">!aibattle</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">👁️</div>
+        <div class="cmd-info"><div class="cmd-name">Conspiracy Gen.</div><div class="cmd-tag">!conspiracy</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="cmd-card">
+        <div class="cmd-emoji">🎨</div>
+        <div class="cmd-info"><div class="cmd-name">Image Generation</div><div class="cmd-tag">!imagine</div></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
