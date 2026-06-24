@@ -261,6 +261,16 @@ app.post('/api/auth/discord/verify', discordAuthLimiter, async (req, res) => {
 
 // ── PROTECTED API ─────────────────────────────────────────────────────────────
 
+app.get('/api/stats', authMiddleware, async (req, res) => {
+  const features = await Feature.find({}, { _id: 0, enabled: 1 });
+  const enabledCount = features.filter(f => f.enabled).length;
+  const totalCount = features.length;
+  const uptimeSeconds = Math.floor(process.uptime());
+  const doc = await BotStatus.findOne({ key: 'bot' });
+  const online = doc && doc.lastSeen && (Date.now() - doc.lastSeen.getTime() < 2 * 60 * 1000);
+  res.json({ enabledCount, totalCount, uptimeSeconds, botOnline: !!online });
+});
+
 app.get('/api/features', authMiddleware, async (req, res) => {
   const features = await Feature.find({}, { _id: 0, name: 1, enabled: 1 });
   res.json(features);
