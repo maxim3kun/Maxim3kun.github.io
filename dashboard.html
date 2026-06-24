@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MaximeGPT — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0010;
+    --bg2: #12002a;
+    --purple: #7c3aed;
+    --purple-light: #a855f7;
+    --purple-glow: rgba(124, 58, 237, 0.35);
+    --card: rgba(124, 58, 237, 0.08);
+    --card-border: rgba(124, 58, 237, 0.25);
+    --text: #f1f1ff;
+    --text-muted: #9ca3af;
+    --green: #22c55e;
+    --red: #ef4444;
+    --radius: 14px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, var(--bg) 0%, var(--bg2) 50%, #0d001f 100%);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.5;
+  }
+
+  /* ── LOGIN ── */
+  #login-view {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px; position: relative; z-index: 1;
+  }
+
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 48px 40px;
+    width: 100%; max-width: 420px;
+    box-shadow: 0 0 60px var(--purple-glow);
+    backdrop-filter: blur(12px);
+  }
+
+  .login-logo {
+    text-align: center; margin-bottom: 32px;
+  }
+
+  .login-logo h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 2rem; font-weight: 700;
+    background: linear-gradient(90deg, #a855f7, #7c3aed);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+  }
+
+  .login-logo p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .form-group input {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: var(--text); font-size: 0.95rem; font-family: inherit;
+    outline: none; transition: border-color 0.2s;
+  }
+
+  .form-group input:focus { border-color: var(--purple-light); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 12px 24px;
+    border: none; border-radius: 8px; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    transition: all 0.2s; outline: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    color: #fff; width: 100%;
+    box-shadow: 0 4px 20px var(--purple-glow);
+  }
+
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .error-msg {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px; padding: 10px 14px;
+    color: #fca5a5; font-size: 0.85rem;
+    margin-bottom: 16px; display: none;
+  }
+
+  /* ── DASHBOARD ── */
+  #dashboard-view { display: none; position: relative; z-index: 1; min-height: 100vh; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(10,0,16,0.8);
+    border-bottom: 1px solid var(--card-border);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  .topbar-logo {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700;
+    background: linear-gradient(90deg, #a855f7, #7c3aed);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; letter-spacing: 2px;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+
+  .bot-status {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.85rem; color: var(--text-muted);
+  }
+
+  .status-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--text-muted);
+    box-shadow: 0 0 6px currentColor;
+    transition: background 0.4s;
+  }
+
+  .status-dot.online { background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .status-dot.offline { background: var(--red); box-shadow: 0 0 10px var(--red); }
+
+  .lang-switcher {
+    display: flex; gap: 4px;
+  }
+
+  .lang-btn {
+    padding: 4px 10px; border-radius: 6px; border: 1px solid transparent;
+    background: transparent; color: var(--text-muted);
+    font-family: inherit; font-size: 0.8rem; cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .lang-btn:hover { color: var(--text); border-color: var(--card-border); }
+  .lang-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+  .logout-btn {
+    padding: 6px 14px; border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: transparent; color: var(--text-muted);
+    font-family: inherit; font-size: 0.8rem; cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .logout-btn:hover { color: var(--text); border-color: var(--purple-light); }
+
+  .main-content { padding: 40px 32px; max-width: 1100px; margin: 0 auto; }
+
+  .section-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem; font-weight: 600;
+    color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 2px; margin-bottom: 20px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .feature-card:hover {
+    border-color: rgba(124, 58, 237, 0.5);
+    box-shadow: 0 0 20px var(--purple-glow);
+  }
+
+  .feature-info { display: flex; align-items: center; gap: 14px; }
+
+  .feature-icon { font-size: 1.4rem; }
+
+  .feature-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;
+  }
+
+  /* ── TOGGLE ── */
+  .toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+
+  .toggle input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-track {
+    position: absolute; inset: 0; cursor: pointer;
+    border-radius: 26px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    transition: background 0.25s, border-color 0.25s;
+  }
+
+  .toggle-track::before {
+    content: ''; position: absolute;
+    width: 20px; height: 20px; border-radius: 50%;
+    left: 2px; top: 2px;
+    background: #fff;
+    transition: transform 0.25s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  .toggle input:checked + .toggle-track {
+    background: linear-gradient(135deg, var(--purple), var(--purple-light));
+    border-color: var(--purple-light);
+  }
+
+  .toggle input:checked + .toggle-track::before { transform: translateX(22px); }
+
+  .toggle input:disabled + .toggle-track { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── LOADING SKELETON ── */
+  .skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 8px; height: 24px;
+  }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: rgba(20, 0, 40, 0.95);
+    border: 1px solid var(--card-border);
+    border-radius: 10px; padding: 12px 20px;
+    font-size: 0.875rem; color: var(--text);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s; z-index: 999;
+    backdrop-filter: blur(10px);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: rgba(34,197,94,0.4); }
+  .toast.error { border-color: rgba(239,68,68,0.4); }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 14px 16px; }
+    .main-content { padding: 24px 16px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .login-card { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-view">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>MAXIMEGPT</h1>
+      <p data-i18n="loginSubtitle">Admin Dashboard</p>
+    </div>
+    <div class="error-msg" id="login-error"></div>
+    <form id="login-form">
+      <div class="form-group">
+        <label data-i18n="passwordLabel">Password</label>
+        <input type="password" id="password-input" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary" id="login-btn">
+        <span data-i18n="loginBtn">Log in</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard-view">
+  <nav class="topbar">
+    <div class="topbar-logo">MAXIMEGPT</div>
+    <div class="topbar-right">
+      <div class="bot-status">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-label" data-i18n="checking">Checking…</span>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" onclick="setLang('es')">ES</button>
+      </div>
+      <button class="logout-btn" onclick="logout()" data-i18n="logout">Log out</button>
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <p class="section-title" data-i18n="featuresTitle">Bot Features</p>
+    <div class="features-grid" id="features-grid">
+      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
+      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
+      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
+      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TRANSLATIONS = {
+  en: {
+    loginSubtitle: 'Admin Dashboard',
+    passwordLabel: 'Password',
+    loginBtn: 'Log in',
+    logout: 'Log out',
+    featuresTitle: 'Bot Features',
+    checking: 'Checking…',
+    online: 'Online',
+    offline: 'Offline',
+    invalidPassword: 'Invalid password.',
+    rateLimited: 'Too many attempts. Try again in 15 minutes.',
+    serverError: 'Server error. Try again.',
+    toggledOn: 'enabled.',
+    toggledOff: 'disabled.',
+    featureNames: {
+      music: 'Music', radio: 'Radio', youtube: 'YouTube (!y)',
+      karaoke: 'Karaoke', voice_tts: 'Voice / TTS', ai_chat: 'AI Chat (Groq)',
+      ai_battle: 'AI Battle', trivia: 'Trivia', connect4: 'Connect 4',
+      minesweeper: 'Minesweeper', geoguessr: 'GeoGuessr', blindtest: 'Blindtest',
+      image_generation: 'Image Generation', conspiracy: 'Conspiracy Generator'
+    },
+    featureIcons: {
+      music: '🎵', radio: '📻', youtube: '▶️', karaoke: '🎤',
+      voice_tts: '🔊', ai_chat: '🤖', ai_battle: '⚔️', trivia: '🧠',
+      connect4: '🔴', minesweeper: '💣', geoguessr: '🌍', blindtest: '🎧',
+      image_generation: '🎨', conspiracy: '👁️'
+    }
+  },
+  fr: {
+    loginSubtitle: 'Tableau de bord Admin',
+    passwordLabel: 'Mot de passe',
+    loginBtn: 'Connexion',
+    logout: 'Déconnexion',
+    featuresTitle: 'Fonctionnalités du Bot',
+    checking: 'Vérification…',
+    online: 'En ligne',
+    offline: 'Hors ligne',
+    invalidPassword: 'Mot de passe incorrect.',
+    rateLimited: 'Trop de tentatives. Réessayez dans 15 minutes.',
+    serverError: 'Erreur serveur. Réessayez.',
+    toggledOn: 'activé.',
+    toggledOff: 'désactivé.',
+    featureNames: {
+      music: 'Musique', radio: 'Radio', youtube: 'YouTube (!y)',
+      karaoke: 'Karaoké', voice_tts: 'Voix / TTS', ai_chat: 'Chat IA (Groq)',
+      ai_battle: 'Duel IA', trivia: 'Quiz', connect4: 'Puissance 4',
+      minesweeper: 'Démineur', geoguessr: 'GéoGuessr', blindtest: 'Blind Test',
+      image_generation: 'Génération d\'images', conspiracy: 'Générateur de complot'
+    },
+    featureIcons: {
+      music: '🎵', radio: '📻', youtube: '▶️', karaoke: '🎤',
+      voice_tts: '🔊', ai_chat: '🤖', ai_battle: '⚔️', trivia: '🧠',
+      connect4: '🔴', minesweeper: '💣', geoguessr: '🌍', blindtest: '🎧',
+      image_generation: '🎨', conspiracy: '👁️'
+    }
+  },
+  es: {
+    loginSubtitle: 'Panel de Administración',
+    passwordLabel: 'Contraseña',
+    loginBtn: 'Iniciar sesión',
+    logout: 'Cerrar sesión',
+    featuresTitle: 'Funciones del Bot',
+    checking: 'Verificando…',
+    online: 'En línea',
+    offline: 'Sin conexión',
+    invalidPassword: 'Contraseña incorrecta.',
+    rateLimited: 'Demasiados intentos. Inténtelo en 15 minutos.',
+    serverError: 'Error del servidor. Inténtelo de nuevo.',
+    toggledOn: 'activado.',
+    toggledOff: 'desactivado.',
+    featureNames: {
+      music: 'Música', radio: 'Radio', youtube: 'YouTube (!y)',
+      karaoke: 'Karaoke', voice_tts: 'Voz / TTS', ai_chat: 'Chat IA (Groq)',
+      ai_battle: 'Batalla IA', trivia: 'Trivia', connect4: 'Conecta 4',
+      minesweeper: 'Buscaminas', geoguessr: 'GeoGuessr', blindtest: 'Blindtest',
+      image_generation: 'Generación de imágenes', conspiracy: 'Generador de conspiración'
+    },
+    featureIcons: {
+      music: '🎵', radio: '📻', youtube: '▶️', karaoke: '🎤',
+      voice_tts: '🔊', ai_chat: '🤖', ai_battle: '⚔️', trivia: '🧠',
+      connect4: '🔴', minesweeper: '💣', geoguessr: '🌍', blindtest: '🎧',
+      image_generation: '🎨', conspiracy: '👁️'
+    }
+  }
+};
+
+let currentLang = 'en';
+let token = null;
+
+function t(key) { return TRANSLATIONS[currentLang][key] || TRANSLATIONS.en[key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.toLowerCase() === lang);
+  });
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    el.textContent = t(key);
+  });
+  if (token) renderFeatureNames();
+}
+
+function renderFeatureNames() {
+  document.querySelectorAll('.feature-name[data-feature]').forEach(el => {
+    const name = el.dataset.feature;
+    el.textContent = t('featureNames')[name] || name;
+  });
+}
+
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+async function login(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  const password = document.getElementById('password-input').value;
+  btn.disabled = true;
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    const data = await res.json();
+
+    if (res.status === 401) { showError(t('invalidPassword')); return; }
+    if (res.status === 429) { showError(t('rateLimited')); return; }
+    if (!res.ok) { showError(t('serverError')); return; }
+
+    token = data.token;
+    sessionStorage.setItem('dash_token', token);
+    showDashboard();
+  } catch {
+    showError(t('serverError'));
+  } finally {
+    btn.disabled = false;
+  }
+
+  function showError(msg) {
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
+  }
+}
+
+function logout() {
+  token = null;
+  sessionStorage.removeItem('dash_token');
+  document.getElementById('dashboard-view').style.display = 'none';
+  document.getElementById('login-view').style.display = 'flex';
+  document.getElementById('password-input').value = '';
+}
+
+async function showDashboard() {
+  document.getElementById('login-view').style.display = 'none';
+  document.getElementById('dashboard-view').style.display = 'block';
+  await Promise.all([loadFeatures(), loadStatus()]);
+  setInterval(loadStatus, 60000);
+}
+
+async function loadFeatures() {
+  try {
+    const res = await fetch('/api/features', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.status === 401) { logout(); return; }
+    const features = await res.json();
+    renderFeatures(features);
+  } catch {
+    showToast(t('serverError'), 'error');
+  }
+}
+
+function renderFeatures(features) {
+  const grid = document.getElementById('features-grid');
+  grid.innerHTML = '';
+  const icons = t('featureIcons');
+  const names = t('featureNames');
+
+  features.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'feature-card';
+    const id = `toggle-${f.name}`;
+    card.innerHTML = `
+      <div class="feature-info">
+        <span class="feature-icon">${icons[f.name] || '⚙️'}</span>
+        <span class="feature-name" data-feature="${f.name}">${names[f.name] || f.name}</span>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="${id}" ${f.enabled ? 'checked' : ''} onchange="toggleFeature('${f.name}', this)" />
+        <span class="toggle-track"></span>
+      </label>`;
+    grid.appendChild(card);
+  });
+}
+
+async function toggleFeature(name, checkbox) {
+  const enabled = checkbox.checked;
+  checkbox.disabled = true;
+  try {
+    const res = await fetch(`/api/features/${name}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ enabled })
+    });
+    if (res.status === 401) { logout(); return; }
+    if (!res.ok) { checkbox.checked = !enabled; showToast(t('serverError'), 'error'); return; }
+    const fname = t('featureNames')[name] || name;
+    showToast(`${fname} ${enabled ? t('toggledOn') : t('toggledOff')}`, enabled ? 'success' : 'error');
+  } catch {
+    checkbox.checked = !enabled;
+    showToast(t('serverError'), 'error');
+  } finally {
+    checkbox.disabled = false;
+  }
+}
+
+async function loadStatus() {
+  try {
+    const res = await fetch('/api/status', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.status === 401) { logout(); return; }
+    const data = await res.json();
+    const dot = document.getElementById('status-dot');
+    const label = document.getElementById('status-label');
+    dot.className = `status-dot ${data.online ? 'online' : 'offline'}`;
+    label.textContent = data.online ? t('online') : t('offline');
+  } catch {}
+}
+
+document.getElementById('login-form').addEventListener('submit', login);
+
+const saved = sessionStorage.getItem('dash_token');
+if (saved) {
+  token = saved;
+  showDashboard();
+}
+</script>
+</body>
+</html>

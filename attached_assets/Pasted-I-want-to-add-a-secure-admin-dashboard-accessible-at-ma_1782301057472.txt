@@ -1,0 +1,53 @@
+I want to add a secure admin dashboard accessible at maximegpt.com/dashboard to control my Discord bot (Bot-GPT2). The site maximegpt.com is hosted on GitHub Pages (static), so the dashboard will be a static HTML file on GitHub Pages that communicates with a REST API added to the existing Railway bot server.
+
+Here's exactly what I need:
+
+**PART 1 — API routes to add to the existing Railway bot (Express server)**
+
+POST /api/login
+- Accepts a password, compares it to a bcrypt hash stored in an environment variable (DASHBOARD_PASSWORD_HASH)
+- Returns a signed JWT token (secret stored in environment variable JWT_SECRET)
+- Max 5 failed attempts then lock for 15 minutes
+- Session expires after 30 minutes
+
+GET /api/features
+- Protected by JWT token in Authorization header
+- Returns the current ON/OFF state of all features from MongoDB Atlas
+
+POST /api/features/:name
+- Protected by JWT token
+- Toggles a feature ON or OFF in MongoDB Atlas
+
+GET /api/status
+- Protected by JWT token
+- Returns bot online/offline status
+
+All API routes must have CORS configured to only accept requests from https://www.maximegpt.com
+
+**PART 2 — Bot side**
+
+At the start of each command handler, check MongoDB for the feature enabled state. If disabled, reply with a localized message based on the user's server language:
+- English: 'This feature is currently disabled.'
+- French: 'Cette fonctionnalité est actuellement désactivée.'
+- Spanish: 'Esta función está actualmente desactivada.'
+
+Features to control: Music, Radio, YouTube (!y), Karaoke, Voice/TTS, AI Chat (Groq), AI Battle, Trivia, Connect 4, Minesweeper, GeoGuessr, Blindtest, Image Generation, Conspiracy Generator
+
+**PART 3 — dashboard.html (to be added to the GitHub Pages repo)**
+
+- Single HTML file, no framework, vanilla JS
+- Login page with password field
+- After login, show the dashboard with toggle switches for each feature
+- Show bot status (online/offline) with a colored dot
+- Language switcher (English, French, Spanish) in the top right corner — all UI text translated
+- Design must match maximegpt.com: dark purple gradient background, white text, purple accents
+- JWT token stored in sessionStorage (cleared when tab closes)
+- If token expired, redirect to login automatically
+
+**SECURITY**
+- HTTPS only
+- No hardcoded credentials anywhere
+- All secrets in Railway environment variables: DASHBOARD_PASSWORD_HASH and JWT_SECRET
+- Generate the bcrypt hash for my password and show me the command to run once to generate it
+
+The bot already uses: MongoDB Atlas (AWS Paris region), Railway for hosting, Express server, Groq API. Please integrate without breaking any existing features.
