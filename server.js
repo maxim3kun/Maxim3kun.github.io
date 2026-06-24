@@ -23,8 +23,13 @@ const featureSchema = new mongoose.Schema({
 const Feature = mongoose.model('Feature', featureSchema);
 
 const botStatusSchema = new mongoose.Schema({
-  key: { type: String, default: 'bot', unique: true },
-  lastSeen: { type: Date, default: null }
+  key:          { type: String, default: 'bot', unique: true },
+  lastSeen:     { type: Date,   default: null },
+  guildCount:   { type: Number, default: 0 },
+  groqCalls:    { type: Number, default: 0 },
+  commandCount: { type: Number, default: 0 },
+  botTag:       { type: String, default: '' },
+  botAvatarUrl: { type: String, default: null }
 });
 const BotStatus = mongoose.model('BotStatus', botStatusSchema);
 
@@ -34,24 +39,29 @@ const allowedUserSchema = new mongoose.Schema({
 const AllowedUser = mongoose.model('allowed_users', allowedUserSchema);
 
 const dashboardUserSchema = new mongoose.Schema({
-  username: { type: String, unique: true, required: true },
+  username:     { type: String, unique: true, required: true },
   passwordHash: { type: String, required: true }
 });
 const DashboardUser = mongoose.model('dashboard_users', dashboardUserSchema);
 
 const pending2faSchema = new mongoose.Schema({
   discordId: { type: String, required: true },
-  code: { type: String, required: true },
-  expiresAt: { type: Date, required: true }
+  code:      { type: String, required: true },
+  expiresAt: { type: Date,   required: true }
 });
 const Pending2FA = mongoose.model('pending_2fa', pending2faSchema);
 
 // ── FEATURE SEED ──────────────────────────────────────────────────────────────
 
 const FEATURES = [
-  'music', 'radio', 'youtube', 'karaoke', 'voice_tts',
-  'ai_chat', 'ai_battle', 'trivia', 'connect4', 'minesweeper',
-  'geoguessr', 'blindtest', 'image_generation', 'conspiracy'
+  // Music & Audio
+  'music', 'radio', 'youtube', 'karaoke', 'voice_tts', 'shazam', 'suno',
+  // AI
+  'ai_chat', 'ai_battle', 'image_generation', 'conspiracy',
+  // Games
+  'trivia', 'connect4', 'minesweeper', 'geoguessr', 'blindtest', 'guesslogo',
+  // Social
+  'food', 'quests'
 ];
 
 async function ensureFeatures() {
@@ -266,9 +276,21 @@ app.get('/api/stats', authMiddleware, async (req, res) => {
   const enabledCount = features.filter(f => f.enabled).length;
   const totalCount = features.length;
   const uptimeSeconds = Math.floor(process.uptime());
+
   const doc = await BotStatus.findOne({ key: 'bot' });
-  const online = doc && doc.lastSeen && (Date.now() - doc.lastSeen.getTime() < 2 * 60 * 1000);
-  res.json({ enabledCount, totalCount, uptimeSeconds, botOnline: !!online });
+  const botOnline = !!(doc && doc.lastSeen && (Date.now() - doc.lastSeen.getTime() < 2 * 60 * 1000));
+
+  res.json({
+    enabledCount,
+    totalCount,
+    uptimeSeconds,
+    botOnline,
+    guildCount:   doc?.guildCount   || 0,
+    groqCalls:    doc?.groqCalls    || 0,
+    commandCount: doc?.commandCount || 0,
+    botTag:       doc?.botTag       || '',
+    botAvatarUrl: doc?.botAvatarUrl || null
+  });
 });
 
 app.get('/api/features', authMiddleware, async (req, res) => {
@@ -287,10 +309,11 @@ app.post('/api/features/:name', authMiddleware, async (req, res) => {
 
 app.get('/api/status', authMiddleware, async (req, res) => {
   const doc = await BotStatus.findOne({ key: 'bot' });
-  const online = doc && doc.lastSeen && (Date.now() - doc.lastSeen.getTime() < 2 * 60 * 1000);
-  res.json({ online: !!online, lastSeen: doc?.lastSeen || null });
+  const online = !!(doc && doc.lastSeen && (Date.now() - doc.lastSeen.getTime() < 2 * 60 * 1000));
+  res.json({ online, lastSeen: doc?.lastSeen || null });
 });
 
+// Bot sends a heartbeat every ~60s with its live stats
 app.post('/api/bot-heartbeat', async (req, res) => {
   const secret = process.env.JWT_SECRET;
   const header = req.headers['authorization'] || '';
@@ -299,7 +322,17 @@ app.post('/api/bot-heartbeat', async (req, res) => {
   try { jwt.verify(token, secret); } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  await BotStatus.updateOne({ key: 'bot' }, { lastSeen: new Date() }, { upsert: true });
+
+  const { guildCount, groqCalls, commandCount, botTag, botAvatarUrl } = req.body || {};
+
+  const update = { lastSeen: new Date() };
+  if (typeof guildCount   === 'number') update.guildCount   = guildCount;
+  if (typeof groqCalls    === 'number') update.groqCalls    = groqCalls;
+  if (typeof commandCount === 'number') update.commandCount = commandCount;
+  if (typeof botTag       === 'string') update.botTag       = botTag;
+  if (botAvatarUrl !== undefined)       update.botAvatarUrl = botAvatarUrl;
+
+  await BotStatus.updateOne({ key: 'bot' }, { $set: update }, { upsert: true });
   res.json({ ok: true });
 });
 

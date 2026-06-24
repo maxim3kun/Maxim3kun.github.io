@@ -432,6 +432,10 @@ body{
       <span class="ni-icon">🤖</span>
       <span data-i18n="navAI">AI Features</span>
     </button>
+    <button class="nav-item" onclick="switchPage('social',this)">
+      <span class="ni-icon">✨</span>
+      <span data-i18n="navSocial">Social & Fun</span>
+    </button>
 
     <div class="sb-spacer"></div>
 
@@ -473,17 +477,17 @@ body{
         <div class="stat-card">
           <div class="stat-label" data-i18n="statFeatures">Active Features</div>
           <div class="stat-value" id="stat-feat-val">—</div>
-          <div class="stat-sub purple" id="stat-feat-sub">of 14 total</div>
+          <div class="stat-sub purple" id="stat-feat-sub">of 19 total</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label" data-i18n="statUptime">Server Uptime</div>
-          <div class="stat-value" id="stat-uptime-val">—</div>
-          <div class="stat-sub" id="stat-uptime-sub" data-i18n="sinceRestart">since last restart</div>
+          <div class="stat-label" data-i18n="statServers">Servers</div>
+          <div class="stat-value" id="stat-servers-val">—</div>
+          <div class="stat-sub muted" id="stat-servers-sub">Discord guilds</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label" data-i18n="statVersion">Version</div>
-          <div class="stat-value">v2</div>
-          <div class="stat-sub purple">Dashboard</div>
+          <div class="stat-label" data-i18n="statAICalls">AI Calls (Groq)</div>
+          <div class="stat-value" id="stat-groq-val">—</div>
+          <div class="stat-sub muted" data-i18n="sinceRestart">since last restart</div>
         </div>
       </div>
 
@@ -519,6 +523,12 @@ body{
       <div class="commands-grid" id="ai-grid"></div>
     </div>
 
+    <!-- PAGE: SOCIAL -->
+    <div class="main-inner" id="page-social" style="display:none">
+      <div class="section-label" data-i18n="navSocial">Social & Fun</div>
+      <div class="commands-grid" id="social-grid"></div>
+    </div>
+
   </div>
 </div>
 
@@ -529,33 +539,42 @@ body{
 const CATEGORIES = {
   music: {
     label:{en:'🎵 Music & Audio',fr:'🎵 Musique & Audio',es:'🎵 Música & Audio'},
-    features:['music','radio','youtube','karaoke','voice_tts']
+    features:['music','radio','youtube','karaoke','voice_tts','shazam','suno']
   },
   games: {
     label:{en:'🎮 Games',fr:'🎮 Mini-jeux',es:'🎮 Juegos'},
-    features:['trivia','connect4','minesweeper','geoguessr','blindtest']
+    features:['trivia','connect4','minesweeper','geoguessr','blindtest','guesslogo']
   },
   ai: {
     label:{en:'🤖 AI Features',fr:'🤖 Fonctionnalités IA',es:'🤖 Funciones IA'},
     features:['ai_chat','ai_battle','image_generation','conspiracy']
+  },
+  social: {
+    label:{en:'✨ Social & Fun',fr:'✨ Social & Fun',es:'✨ Social & Diversión'},
+    features:['food','quests']
   }
 };
 
 const FEATURE_META = {
-  music:            {icon:'🎵', en:'Music',               fr:'Musique',               es:'Música',                tag:'!play · !skip · !stop'},
-  radio:            {icon:'📻', en:'Radio',               fr:'Radio',                 es:'Radio',                 tag:'!radio [station]'},
-  youtube:          {icon:'▶️', en:'YouTube',             fr:'YouTube',               es:'YouTube',               tag:'!y [search]'},
-  karaoke:          {icon:'🎤', en:'Karaoke',             fr:'Karaoké',               es:'Karaoke',               tag:'!karaoke'},
-  voice_tts:        {icon:'🔊', en:'Voice / TTS',         fr:'Voix / TTS',            es:'Voz / TTS',             tag:'!tts · !voice'},
-  trivia:           {icon:'🧠', en:'Trivia',              fr:'Quiz',                  es:'Trivia',                tag:'!trivia'},
-  connect4:         {icon:'🔴', en:'Connect 4',           fr:'Puissance 4',           es:'Conecta 4',             tag:'!connect4'},
-  minesweeper:      {icon:'💣', en:'Minesweeper',         fr:'Démineur',              es:'Buscaminas',            tag:'!minesweeper'},
+  music:            {icon:'🎵', en:'Music Player',        fr:'Lecteur Musique',       es:'Reproductor',           tag:'!play · !skip · !stop · !pause'},
+  radio:            {icon:'📻', en:'Radio',               fr:'Radio',                 es:'Radio',                 tag:'!radio [station] · !next'},
+  youtube:          {icon:'▶️', en:'YouTube',             fr:'YouTube',               es:'YouTube',               tag:'!y [search] · !queue · !np'},
+  karaoke:          {icon:'🎤', en:'Karaoke',             fr:'Karaoké',               es:'Karaoke',               tag:'!karaoke start/stop · !offset'},
+  voice_tts:        {icon:'🔊', en:'Voice / TTS',         fr:'Voix / TTS',            es:'Voz / TTS',             tag:'!join · !leave · !tts [text]'},
+  shazam:           {icon:'🎶', en:'Shazam',              fr:'Shazam',                es:'Shazam',                tag:'!shazam (reply to audio)'},
+  suno:             {icon:'🎼', en:'AI Music (Suno)',     fr:'Musique IA (Suno)',     es:'Música IA (Suno)',      tag:'!suno [prompt] · !balance'},
+  trivia:           {icon:'🧠', en:'Trivia',              fr:'Quiz',                  es:'Trivia',                tag:'!trivia [category]'},
+  connect4:         {icon:'🔴', en:'Connect 4',           fr:'Puissance 4',           es:'Conecta 4',             tag:'!connect4 @user'},
+  minesweeper:      {icon:'💣', en:'Minesweeper',         fr:'Démineur',              es:'Buscaminas',            tag:'!minesweeper [easy|medium|hard]'},
   geoguessr:        {icon:'🌍', en:'GeoGuessr',           fr:'GéoGuessr',             es:'GeoGuessr',             tag:'!geo'},
   blindtest:        {icon:'🎧', en:'Blindtest',           fr:'Blind Test',            es:'Blindtest',             tag:'!blindtest'},
-  ai_chat:          {icon:'🤖', en:'AI Chat (Groq)',      fr:'Chat IA (Groq)',         es:'Chat IA (Groq)',         tag:'!ai · !ask'},
-  ai_battle:        {icon:'⚔️', en:'AI Battle',          fr:'Duel IA',               es:'Batalla IA',            tag:'!aibattle'},
-  image_generation: {icon:'🎨', en:'Image Generation',   fr:"Génération d'images",   es:'Generación de imágenes',tag:'!imagine'},
-  conspiracy:       {icon:'👁️', en:'Conspiracy Gen.',    fr:'Générateur de complot', es:'Generador de consp.',   tag:'!conspiracy'},
+  guesslogo:        {icon:'🏷️', en:'Guess the Logo',     fr:'Devine le Logo',        es:'Adivina el Logo',       tag:'!guessthelogo [easy|medium|hard]'},
+  ai_chat:          {icon:'🤖', en:'AI Chat (Groq)',      fr:'Chat IA (Groq)',         es:'Chat IA (Groq)',         tag:'!ai [question] · @mention'},
+  ai_battle:        {icon:'⚔️', en:'AI Battle',          fr:'Duel IA',               es:'Batalla IA',            tag:'!aibattle [topic]'},
+  image_generation: {icon:'🎨', en:'Image Generation',   fr:"Génération d'images",   es:'Generación de imágenes',tag:'!image [prompt]'},
+  conspiracy:       {icon:'👁️', en:'Conspiracy Gen.',    fr:'Générateur de complot', es:'Generador de consp.',   tag:'!conspiracy [topic]'},
+  food:             {icon:'🍔', en:'Food Identifier',    fr:'Identificateur repas',  es:'Identificador comida',  tag:'!food [photo] · !rate'},
+  quests:           {icon:'🗺️', en:'Quests & Goals',    fr:'Quêtes & Objectifs',    es:'Misiones & Objetivos',  tag:'!quest setup · !quest list'},
 };
 
 const I18N = {
@@ -568,9 +587,10 @@ const I18N = {
     tfaTitle:'Two-factor auth',
     tfaSubtitle:'Check your Discord DMs for your 6-digit code. Expires in 5 min.',
     verifyBtn:'Verify',backToLogin:'← Back to login',
-    navOverview:'Overview',navMusic:'Music & Audio',navGames:'Games',navAI:'AI Features',
+    navOverview:'Overview',navMusic:'Music & Audio',navGames:'Games',navAI:'AI Features',navSocial:'Social & Fun',
     logout:'Log out',checking:'Checking…',online:'Online',offline:'Offline',
     statBotStatus:'Bot Status',statFeatures:'Active Features',
+    statServers:'Servers',statAICalls:'AI Calls (Groq)',
     statUptime:'Server Uptime',statVersion:'Version',
     sinceRestart:'since last restart',uptimeLabel:'Server uptime — current session',
     allFeaturesLabel:'All Features',
@@ -589,9 +609,10 @@ const I18N = {
     tfaTitle:'Double authentification',
     tfaSubtitle:'Consultez vos DMs Discord. Le code expire dans 5 min.',
     verifyBtn:'Vérifier',backToLogin:'← Retour',
-    navOverview:'Vue d\'ensemble',navMusic:'Musique & Audio',navGames:'Mini-jeux',navAI:'Fonctionnalités IA',
+    navOverview:'Vue d\'ensemble',navMusic:'Musique & Audio',navGames:'Mini-jeux',navAI:'Fonctionnalités IA',navSocial:'Social & Fun',
     logout:'Déconnexion',checking:'Vérification…',online:'En ligne',offline:'Hors ligne',
     statBotStatus:'Statut du bot',statFeatures:'Fonctionnalités actives',
+    statServers:'Serveurs',statAICalls:'Appels IA (Groq)',
     statUptime:'Uptime serveur',statVersion:'Version',
     sinceRestart:'depuis le dernier redémarrage',uptimeLabel:'Uptime serveur — session actuelle',
     allFeaturesLabel:'Toutes les fonctionnalités',
@@ -610,9 +631,10 @@ const I18N = {
     tfaTitle:'Autenticación en dos pasos',
     tfaSubtitle:'Revisa tus DMs de Discord. El código expira en 5 min.',
     verifyBtn:'Verificar',backToLogin:'← Volver',
-    navOverview:'Resumen',navMusic:'Música & Audio',navGames:'Juegos',navAI:'Funciones IA',
+    navOverview:'Resumen',navMusic:'Música & Audio',navGames:'Juegos',navAI:'Funciones IA',navSocial:'Social & Diversión',
     logout:'Cerrar sesión',checking:'Verificando…',online:'En línea',offline:'Sin conexión',
     statBotStatus:'Estado del bot',statFeatures:'Funciones activas',
+    statServers:'Servidores',statAICalls:'Llamadas IA (Groq)',
     statUptime:'Uptime servidor',statVersion:'Versión',
     sinceRestart:'desde el último reinicio',uptimeLabel:'Uptime servidor — sesión actual',
     allFeaturesLabel:'Todas las funciones',
@@ -674,7 +696,7 @@ function switchTab(tab){
 }
 
 // ── PAGES ─────────────────────────────────────────────────────────────────────
-const PAGE_MAP = {overview:'navOverview',music:'navMusic',games:'navGames',ai:'navAI'};
+const PAGE_MAP = {overview:'navOverview',music:'navMusic',games:'navGames',ai:'navAI',social:'navSocial'};
 
 function switchPage(page, btn) {
   currentPage = page;
@@ -814,16 +836,22 @@ function updateStatsDisplay(d){
   const badge=document.getElementById('sb-badge');
   badge.textContent=`${d.enabledCount}/${d.totalCount}`;
 
+  // Real bot stats (populated once bot sends heartbeat)
+  const srv=d.guildCount||0;
+  document.getElementById('stat-servers-val').textContent=srv>0?srv.toLocaleString():'—';
+  document.getElementById('stat-servers-sub').textContent=srv>0?'Discord guilds':'awaiting bot';
+
+  const groq=d.groqCalls||0;
+  document.getElementById('stat-groq-val').textContent=groq>0?groq.toLocaleString():'—';
+
   updateUptimeDisplay(d.uptimeSeconds);
 }
 
 function updateUptimeDisplay(s){
   const h=Math.floor(s/3600),m=Math.floor((s%3600)/60);
-  const label=h>0?`${h}h ${m}m`:`${m}m`;
-  document.getElementById('stat-uptime-val').textContent=label;
   const pct=Math.min(100,Math.round((s/86400)*100));
   const pctDisplay=s>=86400?'100%':`${pct}%`;
-  document.getElementById('uptime-pct').textContent=pctDisplay;
+  document.getElementById('uptime-pct').textContent=h>0?`${h}h ${m}m`:`${m}m`;
   document.getElementById('uptime-fill').style.width=pctDisplay;
 }
 
@@ -847,9 +875,10 @@ async function loadFeatures(){
 
 function rerenderAllGrids(){
   buildGrid('overview-grid', Object.keys(FEATURE_META));
-  buildGrid('music-grid',  CATEGORIES.music.features);
-  buildGrid('games-grid',  CATEGORIES.games.features);
-  buildGrid('ai-grid',     CATEGORIES.ai.features);
+  buildGrid('music-grid',   CATEGORIES.music.features);
+  buildGrid('games-grid',   CATEGORIES.games.features);
+  buildGrid('ai-grid',      CATEGORIES.ai.features);
+  buildGrid('social-grid',  CATEGORIES.social.features);
 }
 
 function buildGrid(gridId, featureList){
