@@ -14,6 +14,8 @@ mongoose.connect(process.env.DATABASE_URL || '')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('MongoDB connection error:', err.message));
 
+// ── MODELS ────────────────────────────────────────────────────────────────────
+
 const featureSchema = new mongoose.Schema({
   name: { type: String, unique: true, required: true },
   enabled: { type: Boolean, default: true }
@@ -25,6 +27,26 @@ const botStatusSchema = new mongoose.Schema({
   lastSeen: { type: Date, default: null }
 });
 const BotStatus = mongoose.model('BotStatus', botStatusSchema);
+
+const allowedUserSchema = new mongoose.Schema({
+  discordId: { type: String, unique: true, required: true }
+});
+const AllowedUser = mongoose.model('allowed_users', allowedUserSchema);
+
+const dashboardUserSchema = new mongoose.Schema({
+  username: { type: String, unique: true, required: true },
+  passwordHash: { type: String, required: true }
+});
+const DashboardUser = mongoose.model('dashboard_users', dashboardUserSchema);
+
+const pending2faSchema = new mongoose.Schema({
+  discordId: { type: String, required: true },
+  code: { type: String, required: true },
+  expiresAt: { type: Date, required: true }
+});
+const Pending2FA = mongoose.model('pending_2fa', pending2faSchema);
+
+// ── FEATURE SEED ──────────────────────────────────────────────────────────────
 
 const FEATURES = [
   'music', 'radio', 'youtube', 'karaoke', 'voice_tts',
@@ -38,6 +60,8 @@ async function ensureFeatures() {
   }
 }
 mongoose.connection.once('open', ensureFeatures);
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 
 function authMiddleware(req, res, next) {
   const header = req.headers['authorization'] || '';
@@ -53,6 +77,39 @@ function authMiddleware(req, res, next) {
   }
 }
 
+function issueToken() {
+  return jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '30m' });
+}
+
+async function sendDiscordDM(discordId, code) {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) throw new Error('DISCORD_BOT_TOKEN not configured');
+
+  const dmRes = await fetch('https://discord.com/api/v10/users/@me/channels', {
+    method: 'POST',
+    headers: { 'Authorization': `Bot ${botToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ recipient_id: discordId })
+  });
+  if (!dmRes.ok) throw new Error('Failed to open DM channel');
+  const { id: channelId } = await dmRes.json();
+
+  const msgRes = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bot ${botToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      embeds: [{
+        color: 0x7c3aed,
+        title: '🔐 MaximeGPT Dashboard — 2FA Code',
+        description: `Your login code is:\n\n# \`${code}\`\n\nThis code expires in **5 minutes**. Do not share it.`,
+        footer: { text: 'MaximeGPT Admin Dashboard' }
+      }]
+    })
+  });
+  if (!msgRes.ok) throw new Error('Failed to send DM');
+}
+
+// ── RATE LIMITERS ─────────────────────────────────────────────────────────────
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
@@ -61,20 +118,148 @@ const loginLimiter = rateLimit({
   message: { error: 'Too many failed attempts. Try again in 15 minutes.' }
 });
 
-app.post('/api/login', loginLimiter, async (req, res) => {
-  const { password } = req.body;
-  if (!password) return res.status(400).json({ error: 'Password required.' });
-
-  const hash = process.env.DASHBOARD_PASSWORD_HASH;
-  const secret = process.env.JWT_SECRET;
-  if (!hash || !secret) return res.status(503).json({ error: 'Dashboard not configured.' });
-
-  const valid = await bcrypt.compare(password, hash);
-  if (!valid) return res.status(401).json({ error: 'Invalid password.' });
-
-  const token = jwt.sign({ role: 'admin' }, secret, { expiresIn: '30m' });
-  return res.json({ token });
+const discordAuthLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+  message: { error: 'Too many requests.' }
 });
+
+// ── AUTH: USERNAME / PASSWORD ─────────────────────────────────────────────────
+
+app.post('/api/login', loginLimiter, async (req, res) => {
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'Username and password required.' });
+
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return res.status(503).json({ error: 'Dashboard not configured.' });
+
+  const user = await DashboardUser.findOne({ username });
+  if (!user) return res.status(401).json({ error: 'Invalid credentials.' });
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) return res.status(401).json({ error: 'Invalid credentials.' });
+
+  return res.json({ token: issueToken() });
+});
+
+// ── AUTH: ONE-TIME SETUP ──────────────────────────────────────────────────────
+
+app.post('/api/setup-admin', async (req, res) => {
+  const count = await DashboardUser.countDocuments();
+  if (count > 0) return res.status(403).json({ error: 'Setup already completed.' });
+
+  const { username, password } = req.body;
+  if (!username || !password) return res.status(400).json({ error: 'username and password required.' });
+  if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  await DashboardUser.create({ username, passwordHash });
+  res.json({ ok: true, message: `Admin user "${username}" created. This route is now disabled.` });
+});
+
+// ── AUTH: DISCORD OAUTH2 ──────────────────────────────────────────────────────
+
+app.get('/api/auth/discord', (req, res) => {
+  const clientId = process.env.DISCORD_CLIENT_ID;
+  const redirectUri = process.env.DISCORD_REDIRECT_URI;
+  if (!clientId || !redirectUri) return res.status(503).send('Discord OAuth not configured.');
+
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'identify'
+  });
+  res.redirect(`https://discord.com/oauth2/authorize?${params}`);
+});
+
+app.get('/api/auth/discord/callback', discordAuthLimiter, async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.redirect('/dashboard?error=no_code');
+
+  const clientId = process.env.DISCORD_CLIENT_ID;
+  const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+  const redirectUri = process.env.DISCORD_REDIRECT_URI;
+  const jwtSecret = process.env.JWT_SECRET;
+
+  if (!clientId || !clientSecret || !redirectUri || !jwtSecret) {
+    return res.redirect('/dashboard?error=misconfigured');
+  }
+
+  try {
+    const tokenRes = await fetch('https://discord.com/api/v10/oauth2/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: redirectUri
+      })
+    });
+    if (!tokenRes.ok) return res.redirect('/dashboard?error=token_exchange');
+    const { access_token } = await tokenRes.json();
+
+    const userRes = await fetch('https://discord.com/api/v10/users/@me', {
+      headers: { Authorization: `Bearer ${access_token}` }
+    });
+    if (!userRes.ok) return res.redirect('/dashboard?error=user_fetch');
+    const { id: discordId, username, avatar } = await userRes.json();
+
+    const allowed = await AllowedUser.findOne({ discordId });
+    if (!allowed) return res.redirect('/dashboard?error=not_allowed');
+
+    const code2fa = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await Pending2FA.deleteMany({ discordId });
+    await Pending2FA.create({ discordId, code: code2fa, expiresAt });
+
+    await sendDiscordDM(discordId, code2fa);
+
+    const tempToken = jwt.sign(
+      { discordId, username, avatar, type: 'pending_2fa' },
+      jwtSecret,
+      { expiresIn: '5m' }
+    );
+
+    res.redirect(`/dashboard?step=2fa&state=${encodeURIComponent(tempToken)}`);
+  } catch (err) {
+    console.error('Discord OAuth error:', err.message);
+    res.redirect('/dashboard?error=server_error');
+  }
+});
+
+app.post('/api/auth/discord/verify', discordAuthLimiter, async (req, res) => {
+  const { state, code } = req.body;
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!state || !code || !jwtSecret) return res.status(400).json({ error: 'Missing fields.' });
+
+  let payload;
+  try {
+    payload = jwt.verify(state, jwtSecret);
+  } catch {
+    return res.status(401).json({ error: 'Session expired. Please login again.' });
+  }
+
+  if (payload.type !== 'pending_2fa') return res.status(401).json({ error: 'Invalid session.' });
+
+  const pending = await Pending2FA.findOne({ discordId: payload.discordId });
+  if (!pending) return res.status(401).json({ error: 'No pending 2FA. Please login again.' });
+  if (new Date() > pending.expiresAt) {
+    await Pending2FA.deleteOne({ _id: pending._id });
+    return res.status(401).json({ error: 'Code expired. Please login again.' });
+  }
+  if (pending.code !== String(code).trim()) {
+    return res.status(401).json({ error: 'Invalid code.' });
+  }
+
+  await Pending2FA.deleteOne({ _id: pending._id });
+  return res.json({ token: issueToken() });
+});
+
+// ── PROTECTED API ─────────────────────────────────────────────────────────────
 
 app.get('/api/features', authMiddleware, async (req, res) => {
   const features = await Feature.find({}, { _id: 0, name: 1, enabled: 1 });
@@ -101,25 +286,21 @@ app.post('/api/bot-heartbeat', async (req, res) => {
   const header = req.headers['authorization'] || '';
   const token = header.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token || !secret) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    jwt.verify(token, secret);
-  } catch {
+  try { jwt.verify(token, secret); } catch {
     return res.status(401).json({ error: 'Invalid token' });
   }
   await BotStatus.updateOne({ key: 'bot' }, { lastSeen: new Date() }, { upsert: true });
   res.json({ ok: true });
 });
 
+// ── CONTACT ───────────────────────────────────────────────────────────────────
+
 app.post('/api/contact', async (req, res) => {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  if (!webhookUrl) {
-    return res.status(503).json({ error: 'Contact service not configured.' });
-  }
+  if (!webhookUrl) return res.status(503).json({ error: 'Contact service not configured.' });
 
   const { name, message, lang } = req.body;
-  if (!name || !message) {
-    return res.status(400).json({ error: 'Missing fields.' });
-  }
+  if (!name || !message) return res.status(400).json({ error: 'Missing fields.' });
 
   const safe = s => s.replace(/@(everyone|here)/gi, '[@$1]').replace(/<@[!&]?\d+>/g, '[mention]');
 
@@ -134,21 +315,20 @@ app.post('/api/contact', async (req, res) => {
           fields: [
             { name: '👤 Discord', value: safe(name).slice(0, 256), inline: true },
             { name: '🌐 Langue', value: (lang || 'en').toUpperCase(), inline: true },
-            { name: '💬 Message', value: safe(message).slice(0, 1000) },
+            { name: '💬 Message', value: safe(message).slice(0, 1000) }
           ],
           footer: { text: `maximegpt.com · ${new Date().toUTCString()}` }
         }]
       })
     });
-
-    if (response.ok || response.status === 204) {
-      return res.json({ ok: true });
-    }
+    if (response.ok || response.status === 204) return res.json({ ok: true });
     return res.status(502).json({ error: 'Webhook failed.' });
-  } catch (err) {
+  } catch {
     return res.status(500).json({ error: 'Server error.' });
   }
 });
+
+// ── STATIC + CATCH-ALL ────────────────────────────────────────────────────────
 
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'dashboard.html'));

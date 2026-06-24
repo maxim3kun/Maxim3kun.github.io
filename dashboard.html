@@ -15,13 +15,14 @@
     --bg2: #12002a;
     --purple: #7c3aed;
     --purple-light: #a855f7;
-    --purple-glow: rgba(124, 58, 237, 0.35);
-    --card: rgba(124, 58, 237, 0.08);
-    --card-border: rgba(124, 58, 237, 0.25);
+    --purple-glow: rgba(124,58,237,.35);
+    --card: rgba(124,58,237,.08);
+    --card-border: rgba(124,58,237,.25);
     --text: #f1f1ff;
     --text-muted: #9ca3af;
     --green: #22c55e;
     --red: #ef4444;
+    --discord: #5865f2;
     --radius: 14px;
   }
 
@@ -33,133 +34,180 @@
     overflow-x: hidden;
   }
 
-  /* ── NOISE OVERLAY ── */
   body::before {
     content: '';
     position: fixed; inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0; opacity: 0.5;
+    pointer-events: none; z-index: 0; opacity: .5;
   }
 
-  /* ── LOGIN ── */
-  #login-view {
+  /* ── VIEWS ── */
+  #login-view, #twofa-view, #dashboard-view {
+    position: relative; z-index: 1;
+  }
+  #login-view, #twofa-view {
     display: flex; align-items: center; justify-content: center;
-    min-height: 100vh; padding: 24px; position: relative; z-index: 1;
+    min-height: 100vh; padding: 24px;
   }
+  #twofa-view, #dashboard-view { display: none; }
 
-  .login-card {
+  /* ── CARDS ── */
+  .auth-card {
     background: var(--card);
     border: 1px solid var(--card-border);
     border-radius: var(--radius);
-    padding: 48px 40px;
-    width: 100%; max-width: 420px;
+    padding: 44px 40px;
+    width: 100%; max-width: 440px;
     box-shadow: 0 0 60px var(--purple-glow);
     backdrop-filter: blur(12px);
   }
 
-  .login-logo {
-    text-align: center; margin-bottom: 32px;
-  }
-
-  .login-logo h1 {
+  .card-logo { text-align: center; margin-bottom: 28px; }
+  .card-logo h1 {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 2rem; font-weight: 700;
+    font-size: 2rem; font-weight: 700; letter-spacing: 2px;
     background: linear-gradient(90deg, #a855f7, #7c3aed);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 2px;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
+  .card-logo p { color: var(--text-muted); font-size: .85rem; margin-top: 4px; }
 
-  .login-logo p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+  /* ── TABS ── */
+  .tabs {
+    display: flex; border-bottom: 1px solid var(--card-border);
+    margin-bottom: 28px;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px; background: none; border: none; cursor: pointer;
+    font-family: 'Rajdhani', sans-serif; font-size: .9rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--text-muted); border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: all .2s;
+  }
+  .tab-btn.active { color: var(--purple-light); border-bottom-color: var(--purple-light); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 
-  .form-group { margin-bottom: 20px; }
-  .form-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-
+  /* ── FORM ── */
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block; font-size: .75rem; color: var(--text-muted);
+    margin-bottom: 7px; text-transform: uppercase; letter-spacing: 1px;
+  }
   .form-group input {
-    width: 100%; padding: 12px 16px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--card-border);
-    border-radius: 8px;
-    color: var(--text); font-size: 0.95rem; font-family: inherit;
-    outline: none; transition: border-color 0.2s;
+    width: 100%; padding: 11px 15px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--card-border); border-radius: 8px;
+    color: var(--text); font-size: .95rem; font-family: inherit;
+    outline: none; transition: border-color .2s;
   }
-
   .form-group input:focus { border-color: var(--purple-light); }
 
+  /* ── BUTTONS ── */
   .btn {
     display: inline-flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 12px 24px;
-    border: none; border-radius: 8px; cursor: pointer;
-    font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600;
-    letter-spacing: 1px; text-transform: uppercase;
-    transition: all 0.2s; outline: none;
+    gap: 8px; padding: 12px 24px; border: none; border-radius: 8px;
+    cursor: pointer; font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; transition: all .2s; outline: none; width: 100%;
   }
-
   .btn-primary {
     background: linear-gradient(135deg, var(--purple), var(--purple-light));
-    color: #fff; width: 100%;
-    box-shadow: 0 4px 20px var(--purple-glow);
+    color: #fff; box-shadow: 0 4px 20px var(--purple-glow);
+  }
+  .btn-primary:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+
+  .btn-discord {
+    background: var(--discord);
+    color: #fff; box-shadow: 0 4px 20px rgba(88,101,242,.35);
+    margin-bottom: 0;
+  }
+  .btn-discord:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+  .btn-discord:disabled { opacity: .5; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent; color: var(--text-muted);
+    border: 1px solid var(--card-border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--purple-light); }
+
+  /* ── DISCORD USER PREVIEW ── */
+  .discord-hint {
+    font-size: .8rem; color: var(--text-muted); text-align: center;
+    margin-top: 12px; line-height: 1.5;
   }
 
-  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  /* ── 2FA ── */
+  .twofa-icon { font-size: 2.5rem; text-align: center; margin-bottom: 8px; }
+  .twofa-subtitle { color: var(--text-muted); font-size: .85rem; text-align: center; margin-bottom: 24px; line-height: 1.6; }
 
-  .error-msg {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+  .code-inputs {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 24px;
+  }
+  .code-input {
+    width: 48px; height: 56px; text-align: center;
+    font-size: 1.4rem; font-weight: 700;
+    background: rgba(255,255,255,.05);
+    border: 1px solid var(--card-border); border-radius: 8px;
+    color: var(--text); outline: none; transition: border-color .2s;
+    caret-color: var(--purple-light);
+  }
+  .code-input:focus { border-color: var(--purple-light); }
+
+  .resend-link {
+    background: none; border: none; color: var(--purple-light);
+    font-size: .8rem; cursor: pointer; text-decoration: underline;
+    display: block; text-align: center; margin-top: 12px;
+  }
+  .resend-link:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ── ERROR / INFO ── */
+  .alert {
     border-radius: 8px; padding: 10px 14px;
-    color: #fca5a5; font-size: 0.85rem;
-    margin-bottom: 16px; display: none;
+    font-size: .85rem; margin-bottom: 16px; display: none;
   }
+  .alert-error { background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); color: #fca5a5; }
+  .alert-info  { background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.3); color: #c4b5fd; }
 
-  /* ── DASHBOARD ── */
-  #dashboard-view { display: none; position: relative; z-index: 1; min-height: 100vh; }
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--text-muted); font-size: .75rem;
+    margin: 20px 0;
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--card-border); }
 
+  /* ── TOPBAR ── */
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
     padding: 16px 32px;
-    background: rgba(10,0,16,0.8);
+    background: rgba(10,0,16,.8);
     border-bottom: 1px solid var(--card-border);
     backdrop-filter: blur(12px);
     position: sticky; top: 0; z-index: 10;
   }
-
   .topbar-logo {
     font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700;
+    letter-spacing: 2px;
     background: linear-gradient(90deg, #a855f7, #7c3aed);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; letter-spacing: 2px;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-
   .topbar-right { display: flex; align-items: center; gap: 20px; }
 
-  .bot-status {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 0.85rem; color: var(--text-muted);
-  }
-
+  .bot-status { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--text-muted); }
   .status-dot {
     width: 10px; height: 10px; border-radius: 50%;
-    background: var(--text-muted);
-    box-shadow: 0 0 6px currentColor;
-    transition: background 0.4s;
+    background: var(--text-muted); transition: background .4s;
   }
+  .status-dot.online  { background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .status-dot.offline { background: var(--red);   box-shadow: 0 0 10px var(--red); }
 
-  .status-dot.online { background: var(--green); box-shadow: 0 0 10px var(--green); }
-  .status-dot.offline { background: var(--red); box-shadow: 0 0 10px var(--red); }
-
-  .lang-switcher {
-    display: flex; gap: 4px;
-  }
-
+  .lang-switcher { display: flex; gap: 4px; }
   .lang-btn {
-    padding: 4px 10px; border-radius: 6px; border: 1px solid transparent;
-    background: transparent; color: var(--text-muted);
-    font-family: inherit; font-size: 0.8rem; cursor: pointer;
-    transition: all 0.2s;
+    padding: 4px 10px; border-radius: 6px;
+    border: 1px solid transparent; background: transparent;
+    color: var(--text-muted); font-family: inherit; font-size: .8rem; cursor: pointer;
+    transition: all .2s;
   }
-
   .lang-btn:hover { color: var(--text); border-color: var(--card-border); }
   .lang-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
 
@@ -167,137 +215,165 @@
     padding: 6px 14px; border-radius: 8px;
     border: 1px solid var(--card-border);
     background: transparent; color: var(--text-muted);
-    font-family: inherit; font-size: 0.8rem; cursor: pointer;
-    transition: all 0.2s;
+    font-family: inherit; font-size: .8rem; cursor: pointer;
+    transition: all .2s;
   }
-
   .logout-btn:hover { color: var(--text); border-color: var(--purple-light); }
 
+  /* ── MAIN ── */
   .main-content { padding: 40px 32px; max-width: 1100px; margin: 0 auto; }
-
   .section-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.1rem; font-weight: 600;
-    color: var(--text-muted); text-transform: uppercase;
-    letter-spacing: 2px; margin-bottom: 20px;
+    font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600;
+    color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 20px;
   }
 
   .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-    margin-bottom: 48px;
+    gap: 16px; margin-bottom: 48px;
   }
-
   .feature-card {
-    background: var(--card);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: var(--radius); padding: 20px 24px;
     display: flex; align-items: center; justify-content: space-between;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color .2s, box-shadow .2s;
   }
-
-  .feature-card:hover {
-    border-color: rgba(124, 58, 237, 0.5);
-    box-shadow: 0 0 20px var(--purple-glow);
-  }
-
+  .feature-card:hover { border-color: rgba(124,58,237,.5); box-shadow: 0 0 20px var(--purple-glow); }
   .feature-info { display: flex; align-items: center; gap: 14px; }
-
   .feature-icon { font-size: 1.4rem; }
-
-  .feature-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1rem; font-weight: 600; letter-spacing: 0.5px;
-  }
+  .feature-name { font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: .5px; }
 
   /* ── TOGGLE ── */
   .toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
-
   .toggle input { opacity: 0; width: 0; height: 0; }
-
   .toggle-track {
-    position: absolute; inset: 0; cursor: pointer;
-    border-radius: 26px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    transition: background 0.25s, border-color 0.25s;
+    position: absolute; inset: 0; cursor: pointer; border-radius: 26px;
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+    transition: background .25s, border-color .25s;
   }
-
   .toggle-track::before {
     content: ''; position: absolute;
     width: 20px; height: 20px; border-radius: 50%;
-    left: 2px; top: 2px;
-    background: #fff;
-    transition: transform 0.25s;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    left: 2px; top: 2px; background: #fff;
+    transition: transform .25s; box-shadow: 0 2px 6px rgba(0,0,0,.4);
   }
-
   .toggle input:checked + .toggle-track {
     background: linear-gradient(135deg, var(--purple), var(--purple-light));
     border-color: var(--purple-light);
   }
-
   .toggle input:checked + .toggle-track::before { transform: translateX(22px); }
+  .toggle input:disabled + .toggle-track { opacity: .5; cursor: not-allowed; }
 
-  .toggle input:disabled + .toggle-track { opacity: 0.5; cursor: not-allowed; }
-
-  /* ── LOADING SKELETON ── */
+  /* ── SKELETON ── */
   .skeleton {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite;
-    border-radius: 8px; height: 24px;
+    background: linear-gradient(90deg, rgba(255,255,255,.04) 25%, rgba(255,255,255,.08) 50%, rgba(255,255,255,.04) 75%);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 8px; height: 26px;
   }
-  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 
+  /* ── TOAST ── */
   .toast {
     position: fixed; bottom: 28px; right: 28px;
-    background: rgba(20, 0, 40, 0.95);
-    border: 1px solid var(--card-border);
+    background: rgba(20,0,40,.95); border: 1px solid var(--card-border);
     border-radius: 10px; padding: 12px 20px;
-    font-size: 0.875rem; color: var(--text);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    font-size: .875rem; color: var(--text);
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
     transform: translateY(80px); opacity: 0;
-    transition: all 0.3s; z-index: 999;
+    transition: all .3s; z-index: 999;
     backdrop-filter: blur(10px);
   }
   .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { border-color: rgba(34,197,94,0.4); }
-  .toast.error { border-color: rgba(239,68,68,0.4); }
+  .toast.success { border-color: rgba(34,197,94,.4); }
+  .toast.error   { border-color: rgba(239,68,68,.4); }
 
-  @media (max-width: 600px) {
+  @media (max-width:600px) {
     .topbar { padding: 14px 16px; }
     .main-content { padding: 24px 16px; }
     .features-grid { grid-template-columns: 1fr; }
-    .login-card { padding: 32px 24px; }
+    .auth-card { padding: 32px 20px; }
+    .code-input { width: 40px; height: 48px; font-size: 1.2rem; }
   }
 </style>
 </head>
 <body>
 
-<!-- ── LOGIN ── -->
+<!-- ══ LOGIN ══════════════════════════════════════════════════════════════════ -->
 <div id="login-view">
-  <div class="login-card">
-    <div class="login-logo">
+  <div class="auth-card">
+    <div class="card-logo">
       <h1>MAXIMEGPT</h1>
       <p data-i18n="loginSubtitle">Admin Dashboard</p>
     </div>
-    <div class="error-msg" id="login-error"></div>
-    <form id="login-form">
-      <div class="form-group">
-        <label data-i18n="passwordLabel">Password</label>
-        <input type="password" id="password-input" autocomplete="current-password" required />
-      </div>
-      <button type="submit" class="btn btn-primary" id="login-btn">
-        <span data-i18n="loginBtn">Log in</span>
+
+    <div class="alert alert-error" id="login-error"></div>
+    <div class="alert alert-info"  id="login-info"></div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('discord')" id="tab-discord-btn" data-i18n="tabDiscord">Discord</button>
+      <button class="tab-btn"        onclick="switchTab('password')" id="tab-password-btn" data-i18n="tabPassword">Username</button>
+    </div>
+
+    <!-- Discord OAuth tab -->
+    <div class="tab-panel active" id="tab-discord">
+      <button class="btn btn-discord" onclick="loginWithDiscord()" id="discord-btn">
+        <svg width="20" height="20" viewBox="0 0 71 55" fill="currentColor">
+          <path d="M60.1 4.9A58.5 58.5 0 0 0 45.5.6a.2.2 0 0 0-.2.1 40.7 40.7 0 0 0-1.8 3.7 54 54 0 0 0-16.2 0A37.5 37.5 0 0 0 25.5.7a.2.2 0 0 0-.2-.1A58.4 58.4 0 0 0 10.7 4.9a.2.2 0 0 0-.1.1C1.6 18 -.9 30.8.3 43.4a.2.2 0 0 0 .1.2 58.8 58.8 0 0 0 17.7 8.9.2.2 0 0 0 .2-.1c1.4-1.9 2.6-3.8 3.6-5.9a.2.2 0 0 0-.1-.3 38.7 38.7 0 0 1-5.5-2.6.2.2 0 0 1 0-.4c.4-.3.7-.6 1.1-.9a.2.2 0 0 1 .2 0c11.6 5.3 24.1 5.3 35.6 0a.2.2 0 0 1 .2 0l1.1.9a.2.2 0 0 1 0 .4 36 36 0 0 1-5.5 2.6.2.2 0 0 0-.1.3c1.1 2 2.3 4 3.6 5.9a.2.2 0 0 0 .2.1A58.6 58.6 0 0 0 70.6 43.6a.2.2 0 0 0 .1-.2C72.2 29 68.5 16.3 60.2 5a.2.2 0 0 0-.1-.1ZM23.7 35.8c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 3.9-2.8 7.2-6.4 7.2Zm23.7 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.6 0 6.5 3.3 6.4 7.2 0 3.9-2.8 7.2-6.4 7.2Z"/>
+        </svg>
+        <span data-i18n="discordBtn">Continue with Discord</span>
       </button>
-    </form>
+      <p class="discord-hint" data-i18n="discordHint">You'll receive a 6-digit code via Discord DM to verify your identity.</p>
+    </div>
+
+    <!-- Username/Password tab -->
+    <div class="tab-panel" id="tab-password">
+      <form id="login-form" onsubmit="loginWithPassword(event)">
+        <div class="form-group">
+          <label data-i18n="usernameLabel">Username</label>
+          <input type="text" id="username-input" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label data-i18n="passwordLabel">Password</label>
+          <input type="password" id="password-input" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn btn-primary" id="login-btn">
+          <span data-i18n="loginBtn">Log in</span>
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 
-<!-- ── DASHBOARD ── -->
+<!-- ══ 2FA ═════════════════════════════════════════════════════════════════════ -->
+<div id="twofa-view">
+  <div class="auth-card">
+    <div class="twofa-icon">📱</div>
+    <div class="card-logo">
+      <h1>MAXIMEGPT</h1>
+    </div>
+    <p class="twofa-subtitle" data-i18n="tfaSubtitle">Check your Discord DMs — we sent you a 6-digit code. It expires in 5 minutes.</p>
+
+    <div class="alert alert-error" id="twofa-error"></div>
+
+    <div class="code-inputs" id="code-inputs">
+      <input class="code-input" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" />
+      <input class="code-input" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" />
+      <input class="code-input" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" />
+      <input class="code-input" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" />
+      <input class="code-input" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" />
+      <input class="code-input" type="text" inputmode="numeric" maxlength="1" pattern="[0-9]" />
+    </div>
+
+    <button class="btn btn-primary" id="verify-btn" onclick="verifyCode()" disabled>
+      <span data-i18n="verifyBtn">Verify</span>
+    </button>
+
+    <button class="resend-link" onclick="backToLogin()" data-i18n="backToLogin">← Back to login</button>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════════════════════════ -->
 <div id="dashboard-view">
   <nav class="topbar">
     <div class="topbar-logo">MAXIMEGPT</div>
@@ -318,10 +394,10 @@
   <div class="main-content">
     <p class="section-title" data-i18n="featuresTitle">Bot Features</p>
     <div class="features-grid" id="features-grid">
-      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
-      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
-      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
-      <div class="feature-card"><div class="skeleton" style="width:100%;height:26px"></div></div>
+      <div class="feature-card"><div class="skeleton" style="width:100%"></div></div>
+      <div class="feature-card"><div class="skeleton" style="width:100%"></div></div>
+      <div class="feature-card"><div class="skeleton" style="width:100%"></div></div>
+      <div class="feature-card"><div class="skeleton" style="width:100%"></div></div>
     </div>
   </div>
 </div>
@@ -329,205 +405,295 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ── TRANSLATIONS ──────────────────────────────────────────────────────────────
 const TRANSLATIONS = {
   en: {
-    loginSubtitle: 'Admin Dashboard',
-    passwordLabel: 'Password',
-    loginBtn: 'Log in',
-    logout: 'Log out',
-    featuresTitle: 'Bot Features',
-    checking: 'Checking…',
-    online: 'Online',
-    offline: 'Offline',
-    invalidPassword: 'Invalid password.',
-    rateLimited: 'Too many attempts. Try again in 15 minutes.',
-    serverError: 'Server error. Try again.',
-    toggledOn: 'enabled.',
-    toggledOff: 'disabled.',
-    featureNames: {
-      music: 'Music', radio: 'Radio', youtube: 'YouTube (!y)',
-      karaoke: 'Karaoke', voice_tts: 'Voice / TTS', ai_chat: 'AI Chat (Groq)',
-      ai_battle: 'AI Battle', trivia: 'Trivia', connect4: 'Connect 4',
-      minesweeper: 'Minesweeper', geoguessr: 'GeoGuessr', blindtest: 'Blindtest',
-      image_generation: 'Image Generation', conspiracy: 'Conspiracy Generator'
+    loginSubtitle:'Admin Dashboard', tabDiscord:'Discord', tabPassword:'Username',
+    discordBtn:'Continue with Discord',
+    discordHint:'You\'ll receive a 6-digit code via Discord DM to verify your identity.',
+    usernameLabel:'Username', passwordLabel:'Password', loginBtn:'Log in',
+    logout:'Log out', featuresTitle:'Bot Features',
+    checking:'Checking…', online:'Online', offline:'Offline',
+    tfaSubtitle:'Check your Discord DMs — we sent you a 6-digit code. It expires in 5 minutes.',
+    verifyBtn:'Verify', backToLogin:'← Back to login',
+    invalidCreds:'Invalid username or password.',
+    rateLimited:'Too many attempts. Try again in 15 minutes.',
+    serverError:'Server error. Try again.',
+    codeExpired:'Code expired. Please login again.',
+    invalidCode:'Invalid code.',
+    toggledOn:'enabled.', toggledOff:'disabled.',
+    featureNames:{
+      music:'Music', radio:'Radio', youtube:'YouTube (!y)', karaoke:'Karaoke',
+      voice_tts:'Voice / TTS', ai_chat:'AI Chat (Groq)', ai_battle:'AI Battle',
+      trivia:'Trivia', connect4:'Connect 4', minesweeper:'Minesweeper',
+      geoguessr:'GeoGuessr', blindtest:'Blindtest',
+      image_generation:'Image Generation', conspiracy:'Conspiracy Generator'
     },
-    featureIcons: {
-      music: '🎵', radio: '📻', youtube: '▶️', karaoke: '🎤',
-      voice_tts: '🔊', ai_chat: '🤖', ai_battle: '⚔️', trivia: '🧠',
-      connect4: '🔴', minesweeper: '💣', geoguessr: '🌍', blindtest: '🎧',
-      image_generation: '🎨', conspiracy: '👁️'
+    featureIcons:{
+      music:'🎵', radio:'📻', youtube:'▶️', karaoke:'🎤', voice_tts:'🔊',
+      ai_chat:'🤖', ai_battle:'⚔️', trivia:'🧠', connect4:'🔴',
+      minesweeper:'💣', geoguessr:'🌍', blindtest:'🎧',
+      image_generation:'🎨', conspiracy:'👁️'
     }
   },
   fr: {
-    loginSubtitle: 'Tableau de bord Admin',
-    passwordLabel: 'Mot de passe',
-    loginBtn: 'Connexion',
-    logout: 'Déconnexion',
-    featuresTitle: 'Fonctionnalités du Bot',
-    checking: 'Vérification…',
-    online: 'En ligne',
-    offline: 'Hors ligne',
-    invalidPassword: 'Mot de passe incorrect.',
-    rateLimited: 'Trop de tentatives. Réessayez dans 15 minutes.',
-    serverError: 'Erreur serveur. Réessayez.',
-    toggledOn: 'activé.',
-    toggledOff: 'désactivé.',
-    featureNames: {
-      music: 'Musique', radio: 'Radio', youtube: 'YouTube (!y)',
-      karaoke: 'Karaoké', voice_tts: 'Voix / TTS', ai_chat: 'Chat IA (Groq)',
-      ai_battle: 'Duel IA', trivia: 'Quiz', connect4: 'Puissance 4',
-      minesweeper: 'Démineur', geoguessr: 'GéoGuessr', blindtest: 'Blind Test',
-      image_generation: 'Génération d\'images', conspiracy: 'Générateur de complot'
+    loginSubtitle:'Tableau de bord Admin', tabDiscord:'Discord', tabPassword:'Identifiant',
+    discordBtn:'Continuer avec Discord',
+    discordHint:'Tu recevras un code à 6 chiffres par DM Discord pour vérifier ton identité.',
+    usernameLabel:'Identifiant', passwordLabel:'Mot de passe', loginBtn:'Connexion',
+    logout:'Déconnexion', featuresTitle:'Fonctionnalités du Bot',
+    checking:'Vérification…', online:'En ligne', offline:'Hors ligne',
+    tfaSubtitle:'Consulte tes DMs Discord — nous t\'avons envoyé un code à 6 chiffres. Il expire dans 5 minutes.',
+    verifyBtn:'Vérifier', backToLogin:'← Retour à la connexion',
+    invalidCreds:'Identifiant ou mot de passe incorrect.',
+    rateLimited:'Trop de tentatives. Réessayez dans 15 minutes.',
+    serverError:'Erreur serveur. Réessayez.',
+    codeExpired:'Code expiré. Reconnectez-vous.',
+    invalidCode:'Code invalide.',
+    toggledOn:'activé.', toggledOff:'désactivé.',
+    featureNames:{
+      music:'Musique', radio:'Radio', youtube:'YouTube (!y)', karaoke:'Karaoké',
+      voice_tts:'Voix / TTS', ai_chat:'Chat IA (Groq)', ai_battle:'Duel IA',
+      trivia:'Quiz', connect4:'Puissance 4', minesweeper:'Démineur',
+      geoguessr:'GéoGuessr', blindtest:'Blind Test',
+      image_generation:'Génération d\'images', conspiracy:'Générateur de complot'
     },
-    featureIcons: {
-      music: '🎵', radio: '📻', youtube: '▶️', karaoke: '🎤',
-      voice_tts: '🔊', ai_chat: '🤖', ai_battle: '⚔️', trivia: '🧠',
-      connect4: '🔴', minesweeper: '💣', geoguessr: '🌍', blindtest: '🎧',
-      image_generation: '🎨', conspiracy: '👁️'
+    featureIcons:{
+      music:'🎵', radio:'📻', youtube:'▶️', karaoke:'🎤', voice_tts:'🔊',
+      ai_chat:'🤖', ai_battle:'⚔️', trivia:'🧠', connect4:'🔴',
+      minesweeper:'💣', geoguessr:'🌍', blindtest:'🎧',
+      image_generation:'🎨', conspiracy:'👁️'
     }
   },
   es: {
-    loginSubtitle: 'Panel de Administración',
-    passwordLabel: 'Contraseña',
-    loginBtn: 'Iniciar sesión',
-    logout: 'Cerrar sesión',
-    featuresTitle: 'Funciones del Bot',
-    checking: 'Verificando…',
-    online: 'En línea',
-    offline: 'Sin conexión',
-    invalidPassword: 'Contraseña incorrecta.',
-    rateLimited: 'Demasiados intentos. Inténtelo en 15 minutos.',
-    serverError: 'Error del servidor. Inténtelo de nuevo.',
-    toggledOn: 'activado.',
-    toggledOff: 'desactivado.',
-    featureNames: {
-      music: 'Música', radio: 'Radio', youtube: 'YouTube (!y)',
-      karaoke: 'Karaoke', voice_tts: 'Voz / TTS', ai_chat: 'Chat IA (Groq)',
-      ai_battle: 'Batalla IA', trivia: 'Trivia', connect4: 'Conecta 4',
-      minesweeper: 'Buscaminas', geoguessr: 'GeoGuessr', blindtest: 'Blindtest',
-      image_generation: 'Generación de imágenes', conspiracy: 'Generador de conspiración'
+    loginSubtitle:'Panel de Administración', tabDiscord:'Discord', tabPassword:'Usuario',
+    discordBtn:'Continuar con Discord',
+    discordHint:'Recibirás un código de 6 dígitos por DM de Discord para verificar tu identidad.',
+    usernameLabel:'Usuario', passwordLabel:'Contraseña', loginBtn:'Iniciar sesión',
+    logout:'Cerrar sesión', featuresTitle:'Funciones del Bot',
+    checking:'Verificando…', online:'En línea', offline:'Sin conexión',
+    tfaSubtitle:'Revisa tus DMs de Discord — te enviamos un código de 6 dígitos. Expira en 5 minutos.',
+    verifyBtn:'Verificar', backToLogin:'← Volver al inicio',
+    invalidCreds:'Usuario o contraseña incorrectos.',
+    rateLimited:'Demasiados intentos. Inténtalo en 15 minutos.',
+    serverError:'Error del servidor. Inténtalo de nuevo.',
+    codeExpired:'Código expirado. Inicia sesión de nuevo.',
+    invalidCode:'Código inválido.',
+    toggledOn:'activado.', toggledOff:'desactivado.',
+    featureNames:{
+      music:'Música', radio:'Radio', youtube:'YouTube (!y)', karaoke:'Karaoke',
+      voice_tts:'Voz / TTS', ai_chat:'Chat IA (Groq)', ai_battle:'Batalla IA',
+      trivia:'Trivia', connect4:'Conecta 4', minesweeper:'Buscaminas',
+      geoguessr:'GeoGuessr', blindtest:'Blindtest',
+      image_generation:'Generación de imágenes', conspiracy:'Generador de conspiración'
     },
-    featureIcons: {
-      music: '🎵', radio: '📻', youtube: '▶️', karaoke: '🎤',
-      voice_tts: '🔊', ai_chat: '🤖', ai_battle: '⚔️', trivia: '🧠',
-      connect4: '🔴', minesweeper: '💣', geoguessr: '🌍', blindtest: '🎧',
-      image_generation: '🎨', conspiracy: '👁️'
+    featureIcons:{
+      music:'🎵', radio:'📻', youtube:'▶️', karaoke:'🎤', voice_tts:'🔊',
+      ai_chat:'🤖', ai_battle:'⚔️', trivia:'🧠', connect4:'🔴',
+      minesweeper:'💣', geoguessr:'🌍', blindtest:'🎧',
+      image_generation:'🎨', conspiracy:'👁️'
     }
   }
 };
 
+// ── STATE ─────────────────────────────────────────────────────────────────────
 let currentLang = 'en';
 let token = null;
+let tempState = null; // Discord 2FA state token
 
-function t(key) { return TRANSLATIONS[currentLang][key] || TRANSLATIONS.en[key] || key; }
+// ── I18N ──────────────────────────────────────────────────────────────────────
+function t(key) { return TRANSLATIONS[currentLang][key] ?? TRANSLATIONS.en[key] ?? key; }
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+}
 
 function setLang(lang) {
   currentLang = lang;
   document.querySelectorAll('.lang-btn').forEach(b => {
     b.classList.toggle('active', b.textContent.toLowerCase() === lang);
   });
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    el.textContent = t(key);
-  });
+  applyI18n();
   if (token) renderFeatureNames();
 }
 
 function renderFeatureNames() {
   document.querySelectorAll('.feature-name[data-feature]').forEach(el => {
-    const name = el.dataset.feature;
-    el.textContent = t('featureNames')[name] || name;
+    el.textContent = t('featureNames')[el.dataset.feature] || el.dataset.feature;
   });
 }
 
+// ── TOAST ─────────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.className = `toast ${type} show`;
-  clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3200);
 }
 
-async function login(e) {
+// ── ALERTS ────────────────────────────────────────────────────────────────────
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideAlerts(...ids) {
+  ids.forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  hideAlerts('login-error', 'login-info');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`tab-${tab}-btn`).classList.add('active');
+  document.getElementById(`tab-${tab}`).classList.add('active');
+}
+
+// ── VIEWS ─────────────────────────────────────────────────────────────────────
+function showView(name) {
+  ['login-view','twofa-view','dashboard-view'].forEach(id => {
+    document.getElementById(id).style.display = id === `${name}-view` ? (name === 'dashboard' ? 'block' : 'flex') : 'none';
+  });
+}
+
+// ── LOGIN: DISCORD ────────────────────────────────────────────────────────────
+function loginWithDiscord() {
+  window.location.href = '/api/auth/discord';
+}
+
+// ── LOGIN: PASSWORD ───────────────────────────────────────────────────────────
+async function loginWithPassword(e) {
   e.preventDefault();
+  hideAlerts('login-error', 'login-info');
   const btn = document.getElementById('login-btn');
-  const errEl = document.getElementById('login-error');
+  const username = document.getElementById('username-input').value.trim();
   const password = document.getElementById('password-input').value;
   btn.disabled = true;
-  errEl.style.display = 'none';
 
   try {
     const res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ username, password })
     });
     const data = await res.json();
-
-    if (res.status === 401) { showError(t('invalidPassword')); return; }
-    if (res.status === 429) { showError(t('rateLimited')); return; }
-    if (!res.ok) { showError(t('serverError')); return; }
-
+    if (res.status === 401) { showAlert('login-error', t('invalidCreds')); return; }
+    if (res.status === 429) { showAlert('login-error', t('rateLimited')); return; }
+    if (!res.ok) { showAlert('login-error', t('serverError')); return; }
     token = data.token;
     sessionStorage.setItem('dash_token', token);
-    showDashboard();
-  } catch {
-    showError(t('serverError'));
-  } finally {
-    btn.disabled = false;
-  }
-
-  function showError(msg) {
-    errEl.textContent = msg;
-    errEl.style.display = 'block';
-  }
+    openDashboard();
+  } catch { showAlert('login-error', t('serverError')); }
+  finally { btn.disabled = false; }
 }
 
+// ── 2FA ───────────────────────────────────────────────────────────────────────
+function initCodeInputs() {
+  const inputs = document.querySelectorAll('.code-input');
+  inputs.forEach((inp, i) => {
+    inp.value = '';
+    inp.addEventListener('input', e => {
+      inp.value = inp.value.replace(/\D/g, '').slice(0,1);
+      if (inp.value && i < inputs.length - 1) inputs[i+1].focus();
+      checkCodeComplete();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i-1].focus();
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      [...text].forEach((ch, j) => { if(inputs[j]) inputs[j].value = ch; });
+      if (inputs[Math.min(text.length, 5)]) inputs[Math.min(text.length, 5)].focus();
+      checkCodeComplete();
+    });
+  });
+}
+
+function checkCodeComplete() {
+  const inputs = document.querySelectorAll('.code-input');
+  const full = [...inputs].every(i => i.value.length === 1);
+  document.getElementById('verify-btn').disabled = !full;
+  if (full) verifyCode();
+}
+
+async function verifyCode() {
+  const inputs = document.querySelectorAll('.code-input');
+  const code = [...inputs].map(i => i.value).join('');
+  if (code.length < 6) return;
+  hideAlerts('twofa-error');
+  const btn = document.getElementById('verify-btn');
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/discord/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ state: tempState, code })
+    });
+    const data = await res.json();
+    if (res.status === 401) {
+      showAlert('twofa-error', data.error || t('invalidCode'));
+      inputs.forEach(i => i.value = '');
+      inputs[0].focus();
+      btn.disabled = true;
+      return;
+    }
+    if (!res.ok) { showAlert('twofa-error', t('serverError')); return; }
+    token = data.token;
+    sessionStorage.setItem('dash_token', token);
+    openDashboard();
+  } catch { showAlert('twofa-error', t('serverError')); }
+  finally { if (btn) btn.disabled = false; }
+}
+
+function backToLogin() {
+  tempState = null;
+  history.replaceState({}, '', '/dashboard');
+  hideAlerts('twofa-error');
+  showView('login');
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
 function logout() {
-  token = null;
+  token = null; tempState = null;
   sessionStorage.removeItem('dash_token');
-  document.getElementById('dashboard-view').style.display = 'none';
-  document.getElementById('login-view').style.display = 'flex';
+  history.replaceState({}, '', '/dashboard');
+  showView('login');
   document.getElementById('password-input').value = '';
+  document.getElementById('username-input').value = '';
 }
 
-async function showDashboard() {
-  document.getElementById('login-view').style.display = 'none';
-  document.getElementById('dashboard-view').style.display = 'block';
+async function openDashboard() {
+  showView('dashboard');
   await Promise.all([loadFeatures(), loadStatus()]);
   setInterval(loadStatus, 60000);
 }
 
 async function loadFeatures() {
   try {
-    const res = await fetch('/api/features', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch('/api/features', { headers: { Authorization: `Bearer ${token}` } });
     if (res.status === 401) { logout(); return; }
-    const features = await res.json();
-    renderFeatures(features);
-  } catch {
-    showToast(t('serverError'), 'error');
-  }
+    renderFeatures(await res.json());
+  } catch { showToast(t('serverError'), 'error'); }
 }
 
 function renderFeatures(features) {
   const grid = document.getElementById('features-grid');
   grid.innerHTML = '';
-  const icons = t('featureIcons');
-  const names = t('featureNames');
-
   features.forEach(f => {
     const card = document.createElement('div');
     card.className = 'feature-card';
-    const id = `toggle-${f.name}`;
     card.innerHTML = `
       <div class="feature-info">
-        <span class="feature-icon">${icons[f.name] || '⚙️'}</span>
-        <span class="feature-name" data-feature="${f.name}">${names[f.name] || f.name}</span>
+        <span class="feature-icon">${t('featureIcons')[f.name] || '⚙️'}</span>
+        <span class="feature-name" data-feature="${f.name}">${t('featureNames')[f.name] || f.name}</span>
       </div>
       <label class="toggle">
-        <input type="checkbox" id="${id}" ${f.enabled ? 'checked' : ''} onchange="toggleFeature('${f.name}', this)" />
+        <input type="checkbox" ${f.enabled ? 'checked' : ''} onchange="toggleFeature('${f.name}',this)" />
         <span class="toggle-track"></span>
       </label>`;
     grid.appendChild(card);
@@ -547,34 +713,50 @@ async function toggleFeature(name, checkbox) {
     if (!res.ok) { checkbox.checked = !enabled; showToast(t('serverError'), 'error'); return; }
     const fname = t('featureNames')[name] || name;
     showToast(`${fname} ${enabled ? t('toggledOn') : t('toggledOff')}`, enabled ? 'success' : 'error');
-  } catch {
-    checkbox.checked = !enabled;
-    showToast(t('serverError'), 'error');
-  } finally {
-    checkbox.disabled = false;
-  }
+  } catch { checkbox.checked = !enabled; showToast(t('serverError'), 'error'); }
+  finally { checkbox.disabled = false; }
 }
 
 async function loadStatus() {
   try {
-    const res = await fetch('/api/status', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const res = await fetch('/api/status', { headers: { Authorization: `Bearer ${token}` } });
     if (res.status === 401) { logout(); return; }
     const data = await res.json();
-    const dot = document.getElementById('status-dot');
-    const label = document.getElementById('status-label');
-    dot.className = `status-dot ${data.online ? 'online' : 'offline'}`;
-    label.textContent = data.online ? t('online') : t('offline');
+    document.getElementById('status-dot').className = `status-dot ${data.online ? 'online' : 'offline'}`;
+    document.getElementById('status-label').textContent = data.online ? t('online') : t('offline');
   } catch {}
 }
 
-document.getElementById('login-form').addEventListener('submit', login);
+// ── INIT ──────────────────────────────────────────────────────────────────────
+initCodeInputs();
 
-const saved = sessionStorage.getItem('dash_token');
-if (saved) {
-  token = saved;
-  showDashboard();
+const params = new URLSearchParams(window.location.search);
+const step  = params.get('step');
+const state = params.get('state');
+const error = params.get('error');
+
+if (error) {
+  const messages = {
+    not_allowed: 'Your Discord account is not authorized.',
+    token_exchange: 'Discord login failed. Please try again.',
+    no_code: 'Discord login cancelled.',
+    misconfigured: 'Server misconfigured. Contact the admin.',
+    server_error: 'Server error. Please try again.'
+  };
+  showAlert('login-error', messages[error] || 'Login failed.');
+  history.replaceState({}, '', '/dashboard');
+}
+
+if (step === '2fa' && state) {
+  tempState = state;
+  history.replaceState({}, '', '/dashboard');
+  showView('twofa');
+  initCodeInputs();
+  document.querySelector('.code-input').focus();
+} else {
+  const saved = sessionStorage.getItem('dash_token');
+  if (saved) { token = saved; openDashboard(); }
+  else showView('login');
 }
 </script>
 </body>
