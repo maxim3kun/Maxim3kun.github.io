@@ -51,6 +51,14 @@ const pending2faSchema = new mongoose.Schema({
 });
 const Pending2FA = mongoose.model('pending_2fa', pending2faSchema);
 
+const tempCredSchema = new mongoose.Schema({
+  discordId:    { type: String, required: true, unique: true },
+  username:     { type: String, required: true },
+  passwordHash: { type: String, required: true },
+  expiresAt:    { type: Date,   required: true }
+});
+const TempCredential = mongoose.model('temp_credentials', tempCredSchema);
+
 // ── FEATURE SEED ──────────────────────────────────────────────────────────────
 
 const FEATURES = [
@@ -91,7 +99,7 @@ function issueToken() {
   return jwt.sign({ role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '30m' });
 }
 
-async function sendDiscordDM(discordId, code) {
+async function sendDiscordDM(discordId, embed) {
   const botToken = process.env.DISCORD_BOT_TOKEN;
   if (!botToken) throw new Error('DISCORD_BOT_TOKEN not configured');
 
@@ -106,16 +114,18 @@ async function sendDiscordDM(discordId, code) {
   const msgRes = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
     method: 'POST',
     headers: { 'Authorization': `Bot ${botToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      embeds: [{
-        color: 0x7c3aed,
-        title: '🔐 MaximeGPT Dashboard — 2FA Code',
-        description: `Your login code is:\n\n# \`${code}\`\n\nThis code expires in **5 minutes**. Do not share it.`,
-        footer: { text: 'MaximeGPT Admin Dashboard' }
-      }]
-    })
+    body: JSON.stringify({ embeds: [embed] })
   });
   if (!msgRes.ok) throw new Error('Failed to send DM');
+}
+
+async function send2faDM(discordId, code) {
+  return sendDiscordDM(discordId, {
+    color: 0x7c3aed,
+    title: '🔐 MaximeGPT Dashboard — 2FA Code',
+    description: `Your login code is:\n\n# \`${code}\`\n\nThis code expires in **5 minutes**. Do not share it.`,
+    footer: { text: 'MaximeGPT Admin Dashboard' }
+  });
 }
 
 // ── RATE LIMITERS ─────────────────────────────────────────────────────────────
@@ -143,10 +153,23 @@ app.post('/api/login', loginLimiter, async (req, res) => {
   const secret = process.env.JWT_SECRET;
   if (!secret) return res.status(503).json({ error: 'Dashboard not configured.' });
 
-  const user = await DashboardUser.findOne({ username });
-  if (!user) return res.status(401).json({ error: 'Invalid credentials.' });
+  let valid = false;
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
+  // Check permanent dashboard users
+  const user = await DashboardUser.findOne({ username });
+  if (user) {
+    valid = await bcrypt.compare(password, user.passwordHash);
+  }
+
+  // Fall back to temporary credentials (Discord !dashboard admin)
+  if (!valid) {
+    const temp = await TempCredential.findOne({ username, expiresAt: { $gt: new Date() } });
+    if (temp) {
+      valid = await bcrypt.compare(password, temp.passwordHash);
+      if (valid) await TempCredential.deleteOne({ _id: temp._id }); // one-time use
+    }
+  }
+
   if (!valid) return res.status(401).json({ error: 'Invalid credentials.' });
 
   return res.json({ token: issueToken() });
@@ -226,7 +249,7 @@ app.get('/api/auth/discord/callback', discordAuthLimiter, async (req, res) => {
     await Pending2FA.deleteMany({ discordId });
     await Pending2FA.create({ discordId, code: code2fa, expiresAt });
 
-    await sendDiscordDM(discordId, code2fa);
+    await send2faDM(discordId, code2fa);
 
     const tempToken = jwt.sign(
       { discordId, username, avatar, type: 'pending_2fa' },
@@ -334,6 +357,56 @@ app.post('/api/bot-heartbeat', async (req, res) => {
 
   await BotStatus.updateOne({ key: 'bot' }, { $set: update }, { upsert: true });
   res.json({ ok: true });
+});
+
+// ── BOT COMMAND: !dashboard admin ────────────────────────────────────────────
+// Called by the Discord bot when an admin runs !dashboard admin
+app.post('/api/bot-command/dashboard', async (req, res) => {
+  const secret = process.env.JWT_SECRET;
+  const header = req.headers['authorization'] || '';
+  const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token || !secret || token !== secret) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const { discordId, discordUsername, isAdmin, isOwner } = req.body || {};
+  if (!discordId || !discordUsername) return res.status(400).json({ error: 'Missing fields.' });
+  if (!isAdmin && !isOwner) return res.status(403).json({ error: 'Admin or server owner required.' });
+
+  // Generate a 10-char temporary password
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+  let tempPwd = '';
+  for (let i = 0; i < 10; i++) tempPwd += chars[Math.floor(Math.random() * chars.length)];
+
+  const passwordHash = await bcrypt.hash(tempPwd, 10);
+  const expiresAt    = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+  await TempCredential.findOneAndUpdate(
+    { discordId },
+    { discordId, username: discordUsername, passwordHash, expiresAt },
+    { upsert: true, new: true }
+  );
+
+  // Send credentials via Discord DM from the bot token
+  const dashUrl = process.env.DASHBOARD_URL ||
+    `https://${req.headers.host || 'your-dashboard.replit.app'}`;
+  try {
+    await sendDiscordDM(discordId, {
+      color: 0x7c3aed,
+      title: '🔐 MaximeGPT Dashboard — Accès temporaire',
+      description:
+        `Voici tes identifiants de connexion au dashboard :\n\n` +
+        `**Identifiant :** \`${discordUsername}\`\n` +
+        `**Mot de passe :** \`${tempPwd}\`\n\n` +
+        `[📊 Ouvrir le Dashboard](${dashUrl}/dashboard)\n\n` +
+        `⚠️ Ces identifiants expirent dans **15 minutes** et ne fonctionnent qu'une seule fois.`,
+      footer: { text: 'MaximeGPT Admin Dashboard' }
+    });
+  } catch (err) {
+    return res.status(500).json({ error: `Impossible d'envoyer le DM : ${err.message}` });
+  }
+
+  return res.json({ ok: true });
 });
 
 // ── CONTACT ───────────────────────────────────────────────────────────────────
