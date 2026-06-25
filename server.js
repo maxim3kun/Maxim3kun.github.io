@@ -439,13 +439,21 @@ app.post('/api/bot-command/dashboard', async (req, res) => {
 
 // ── STATIC + CATCH-ALL ────────────────────────────────────────────────────────
 
+function noCache(res) {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+}
+
 app.get('/dashboard', (req, res) => {
+  noCache(res);
   res.sendFile(path.join(__dirname, 'dashboard.html'));
 });
 
 app.use(express.static(path.join(__dirname)));
 
 app.get('/{*splat}', (req, res) => {
+  noCache(res);
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
@@ -463,9 +471,14 @@ const discordBot = new Client({
   ]
 });
 
+const processedMessages = new Set();
+
 discordBot.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (!message.content.toLowerCase().startsWith('!dashboard admin')) return;
+  if (processedMessages.has(message.id)) return;
+  processedMessages.add(message.id);
+  setTimeout(() => processedMessages.delete(message.id), 60_000);
 
   const isOwner = message.guild?.ownerId === message.author.id;
 
