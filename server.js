@@ -192,7 +192,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
     }
   }
 
-  if (!valid) return res.status(401).json({ error: 'Code invalide ou expiré.' });
+  if (!valid) return res.status(401).json({ error: 'Invalid or expired code.' });
 
   return res.json({ token: issueToken() });
 });
@@ -415,17 +415,17 @@ app.post('/api/bot-command/dashboard', async (req, res) => {
   try {
     await sendDiscordDM(discordId, {
       color: 0x7c3aed,
-      title: '🔐 MaximeGPT Dashboard — Accès temporaire',
+      title: '🔐 MaximeGPT Dashboard — Temporary Access',
       description:
-        `Voici tes identifiants de connexion au dashboard :\n\n` +
-        `**Identifiant :** \`${discordUsername}\`\n` +
-        `**Mot de passe :** \`${tempPwd}\`\n\n` +
-        `[📊 Ouvrir le Dashboard](${dashUrl}/dashboard)\n\n` +
-        `⚠️ Ces identifiants expirent dans **15 minutes** et ne fonctionnent qu'une seule fois.`,
+        `Here are your dashboard login credentials:\n\n` +
+        `**Username:** \`${discordUsername}\`\n` +
+        `**Password:** \`${tempPwd}\`\n\n` +
+        `[📊 Open Dashboard](${dashUrl}/dashboard)\n\n` +
+        `⚠️ These credentials expire in **15 minutes** and can only be used once.`,
       footer: { text: 'MaximeGPT Admin Dashboard' }
     });
   } catch (err) {
-    return res.status(500).json({ error: `Impossible d'envoyer le DM : ${err.message}` });
+    return res.status(500).json({ error: `Failed to send DM: ${err.message}` });
   }
 
   return res.json({ ok: true });
@@ -465,7 +465,7 @@ discordBot.on('messageCreate', async (message) => {
   const isOwner = message.guild?.ownerId === message.author.id;
 
   if (!isOwner) {
-    await message.reply('👑 Seul le propriétaire du serveur peut accéder au dashboard.').catch(() => {});
+    await message.reply('👑 Only the server owner can access the dashboard.').catch(() => {});
     return;
   }
 
@@ -484,21 +484,21 @@ discordBot.on('messageCreate', async (message) => {
 
     await sendDiscordDM(message.author.id, {
       color: 0x7c3aed,
-      title: '🔐 MaximeGPT Dashboard — Code de connexion',
+      title: '🔐 MaximeGPT Dashboard — Login Code',
       description:
-        `Connecte-toi au dashboard avec tes identifiants :\n\n` +
-        `🔗 **Lien :** ${dashUrl}\n\n` +
-        `👤 **Identifiant :** \`${message.author.username}\`\n` +
-        `🔑 **Code :** # \`${code}\`\n\n` +
-        `⚠️ Ce code expire dans **5 minutes** et ne fonctionne qu'une seule fois.\n` +
-        `Ne le partage avec personne.`,
+        `Log in to the dashboard with your credentials:\n\n` +
+        `🔗 **Link:** ${dashUrl}\n\n` +
+        `👤 **Username:** \`${message.author.username}\`\n` +
+        `🔑 **Code:** # \`${code}\`\n\n` +
+        `⚠️ This code expires in **5 minutes** and can only be used once.\n` +
+        `Do not share it with anyone.`,
       footer: { text: 'MaximeGPT Admin Dashboard' }
     });
 
-    await message.reply('✅ Lien et code de connexion envoyés en DM ! Le code expire dans **5 minutes**.').catch(() => {});
+    await message.reply('✅ Login link and code sent via DM! The code expires in **5 minutes**.').catch(() => {});
   } catch (err) {
     console.error('Bot login code error:', err.message);
-    await message.reply(`❌ Impossible d'envoyer le DM : assure-toi que le bot peut t'écrire en privé.`).catch(() => {});
+    await message.reply(`❌ Failed to send DM — make sure the bot is allowed to message you directly.`).catch(() => {});
   }
 });
 
