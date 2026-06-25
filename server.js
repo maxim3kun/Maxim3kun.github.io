@@ -496,22 +496,18 @@ discordBot.on('messageCreate', async (message) => {
   if (message.author.bot) return;
   if (!message.content.toLowerCase().startsWith('!dashboard admin')) return;
 
-  const member  = message.member;
   const isOwner = message.guild?.ownerId === message.author.id;
-  const isAdmin = !!(
-    isOwner ||
-    member?.permissions.has(PermissionFlagsBits.Administrator) ||
-    member?.permissions.has(PermissionFlagsBits.ManageGuild)
-  );
 
-  if (!isAdmin) {
-    await message.reply('🔒 Seuls les admins du serveur peuvent accéder au dashboard.').catch(() => {});
+  if (!isOwner) {
+    await message.reply('👑 Seul le propriétaire du serveur peut accéder au dashboard.').catch(() => {});
     return;
   }
 
   // Code 6 chiffres usage unique
   const code      = String(Math.floor(100000 + Math.random() * 900000));
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+
+  const dashUrl = process.env.DASHBOARD_URL || 'https://www.maximegpt.com/dashboard';
 
   try {
     await BotLoginCode.findOneAndUpdate(
@@ -524,15 +520,16 @@ discordBot.on('messageCreate', async (message) => {
       color: 0x7c3aed,
       title: '🔐 MaximeGPT Dashboard — Code de connexion',
       description:
-        `Voici ton code d'accès au dashboard :\n\n` +
-        `# \`${code}\`\n\n` +
-        `**Identifiant :** \`${message.author.username}\`\n\n` +
-        `⚠️ Expire dans **5 minutes** — usage unique.\n` +
-        `Ne partage pas ce code.`,
+        `Connecte-toi au dashboard avec tes identifiants :\n\n` +
+        `🔗 **Lien :** ${dashUrl}\n\n` +
+        `👤 **Identifiant :** \`${message.author.username}\`\n` +
+        `🔑 **Code :** # \`${code}\`\n\n` +
+        `⚠️ Ce code expire dans **5 minutes** et ne fonctionne qu'une seule fois.\n` +
+        `Ne le partage avec personne.`,
       footer: { text: 'MaximeGPT Admin Dashboard' }
     });
 
-    await message.reply('✅ Code de connexion envoyé en DM ! Il expire dans **5 minutes**.').catch(() => {});
+    await message.reply('✅ Lien et code de connexion envoyés en DM ! Le code expire dans **5 minutes**.').catch(() => {});
   } catch (err) {
     console.error('Bot login code error:', err.message);
     await message.reply(`❌ Impossible d'envoyer le DM : assure-toi que le bot peut t'écrire en privé.`).catch(() => {});
