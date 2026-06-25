@@ -162,39 +162,44 @@ app.post('/api/login', loginLimiter, async (req, res) => {
   const secret = process.env.JWT_SECRET;
   if (!secret) return res.status(503).json({ error: 'Dashboard not configured.' });
 
-  let valid = false;
+  try {
+    let valid = false;
 
-  // Check permanent dashboard users
-  const user = await DashboardUser.findOne({ username });
-  if (user) {
-    valid = await bcrypt.compare(password, user.passwordHash);
-  }
-
-  // Fall back to bot login codes (!dashboard admin in Discord)
-  if (!valid) {
-    const botCode = await BotLoginCode.findOne({
-      discordUsername: username,
-      code: password,
-      expiresAt: { $gt: new Date() }
-    });
-    if (botCode) {
-      valid = true;
-      await BotLoginCode.deleteOne({ _id: botCode._id }); // usage unique
+    // Check permanent dashboard users
+    const user = await DashboardUser.findOne({ username });
+    if (user) {
+      valid = await bcrypt.compare(password, user.passwordHash);
     }
-  }
 
-  // Fall back to temporary credentials
-  if (!valid) {
-    const temp = await TempCredential.findOne({ username, expiresAt: { $gt: new Date() } });
-    if (temp) {
-      valid = await bcrypt.compare(password, temp.passwordHash);
-      if (valid) await TempCredential.deleteOne({ _id: temp._id });
+    // Fall back to bot login codes (!dashboard admin in Discord)
+    if (!valid) {
+      const botCode = await BotLoginCode.findOne({
+        discordUsername: username,
+        code: password,
+        expiresAt: { $gt: new Date() }
+      });
+      if (botCode) {
+        valid = true;
+        await BotLoginCode.deleteOne({ _id: botCode._id });
+      }
     }
+
+    // Fall back to temporary credentials
+    if (!valid) {
+      const temp = await TempCredential.findOne({ username, expiresAt: { $gt: new Date() } });
+      if (temp) {
+        valid = await bcrypt.compare(password, temp.passwordHash);
+        if (valid) await TempCredential.deleteOne({ _id: temp._id });
+      }
+    }
+
+    if (!valid) return res.status(401).json({ error: 'Invalid or expired code.' });
+
+    return res.json({ token: issueToken() });
+  } catch (err) {
+    console.error('Login error:', err.message);
+    return res.status(500).json({ error: 'Server error. Please try again.' });
   }
-
-  if (!valid) return res.status(401).json({ error: 'Invalid or expired code.' });
-
-  return res.json({ token: issueToken() });
 });
 
 // ── AUTH: ONE-TIME SETUP ──────────────────────────────────────────────────────
