@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
+const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -50,6 +51,14 @@ const pending2faSchema = new mongoose.Schema({
   expiresAt: { type: Date,   required: true }
 });
 const Pending2FA = mongoose.model('pending_2fa', pending2faSchema);
+
+const botLoginCodeSchema = new mongoose.Schema({
+  discordId:       { type: String, required: true, unique: true },
+  discordUsername: { type: String, required: true },
+  code:            { type: String, required: true },
+  expiresAt:       { type: Date,   required: true }
+});
+const BotLoginCode = mongoose.model('bot_login_codes', botLoginCodeSchema);
 
 const tempCredSchema = new mongoose.Schema({
   discordId:    { type: String, required: true, unique: true },
@@ -161,16 +170,29 @@ app.post('/api/login', loginLimiter, async (req, res) => {
     valid = await bcrypt.compare(password, user.passwordHash);
   }
 
-  // Fall back to temporary credentials (Discord !dashboard admin)
+  // Fall back to bot login codes (!dashboard admin in Discord)
+  if (!valid) {
+    const botCode = await BotLoginCode.findOne({
+      discordUsername: username,
+      code: password,
+      expiresAt: { $gt: new Date() }
+    });
+    if (botCode) {
+      valid = true;
+      await BotLoginCode.deleteOne({ _id: botCode._id }); // usage unique
+    }
+  }
+
+  // Fall back to temporary credentials
   if (!valid) {
     const temp = await TempCredential.findOne({ username, expiresAt: { $gt: new Date() } });
     if (temp) {
       valid = await bcrypt.compare(password, temp.passwordHash);
-      if (valid) await TempCredential.deleteOne({ _id: temp._id }); // one-time use
+      if (valid) await TempCredential.deleteOne({ _id: temp._id });
     }
   }
 
-  if (!valid) return res.status(401).json({ error: 'Invalid credentials.' });
+  if (!valid) return res.status(401).json({ error: 'Code invalide ou expiré.' });
 
   return res.json({ token: issueToken() });
 });
@@ -459,3 +481,68 @@ app.get('/{*splat}', (req, res) => {
 app.listen(PORT, () => {
   console.log(`MaximeGPT site running on port ${PORT}`);
 });
+
+// ── DISCORD BOT CLIENT — écoute !dashboard admin ──────────────────────────────
+
+const discordBot = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
+});
+
+discordBot.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+  if (!message.content.toLowerCase().startsWith('!dashboard admin')) return;
+
+  const member  = message.member;
+  const isOwner = message.guild?.ownerId === message.author.id;
+  const isAdmin = !!(
+    isOwner ||
+    member?.permissions.has(PermissionFlagsBits.Administrator) ||
+    member?.permissions.has(PermissionFlagsBits.ManageGuild)
+  );
+
+  if (!isAdmin) {
+    await message.reply('🔒 Seuls les admins du serveur peuvent accéder au dashboard.').catch(() => {});
+    return;
+  }
+
+  // Code 6 chiffres usage unique
+  const code      = String(Math.floor(100000 + Math.random() * 900000));
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+
+  try {
+    await BotLoginCode.findOneAndUpdate(
+      { discordId: message.author.id },
+      { discordId: message.author.id, discordUsername: message.author.username, code, expiresAt },
+      { upsert: true, new: true }
+    );
+
+    await sendDiscordDM(message.author.id, {
+      color: 0x7c3aed,
+      title: '🔐 MaximeGPT Dashboard — Code de connexion',
+      description:
+        `Voici ton code d'accès au dashboard :\n\n` +
+        `# \`${code}\`\n\n` +
+        `**Identifiant :** \`${message.author.username}\`\n\n` +
+        `⚠️ Expire dans **5 minutes** — usage unique.\n` +
+        `Ne partage pas ce code.`,
+      footer: { text: 'MaximeGPT Admin Dashboard' }
+    });
+
+    await message.reply('✅ Code de connexion envoyé en DM ! Il expire dans **5 minutes**.').catch(() => {});
+  } catch (err) {
+    console.error('Bot login code error:', err.message);
+    await message.reply(`❌ Impossible d'envoyer le DM : assure-toi que le bot peut t'écrire en privé.`).catch(() => {});
+  }
+});
+
+if (process.env.DISCORD_BOT_TOKEN) {
+  discordBot.login(process.env.DISCORD_BOT_TOKEN)
+    .then(() => console.log('Discord bot client (dashboard) connected'))
+    .catch(err => console.error('Discord bot login error:', err.message));
+} else {
+  console.warn('DISCORD_BOT_TOKEN not set — !dashboard admin disabled');
+}

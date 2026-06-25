@@ -369,14 +369,15 @@ body{
     </div>
 
     <div class="tab-panel" id="tab-password">
+      <p class="discord-hint" style="margin-bottom:14px" data-i18n="botCodeHint">Type <code style="background:rgba(124,58,237,.15);padding:1px 6px;border-radius:4px;color:#a78bfa">!dashboard admin</code> in Discord to receive your code.</p>
       <form onsubmit="loginWithPassword(event)">
         <div class="fg">
-          <label data-i18n="usernameLabel">Username</label>
-          <input type="text" id="username-input" autocomplete="username" required placeholder="admin"/>
+          <label data-i18n="usernameLabel">Discord Username</label>
+          <input type="text" id="username-input" autocomplete="username" required placeholder="your_discord_username"/>
         </div>
         <div class="fg">
-          <label data-i18n="passwordLabel">Password</label>
-          <input type="password" id="password-input" autocomplete="current-password" required placeholder="••••••••"/>
+          <label data-i18n="passwordLabel">Code received by DM</label>
+          <input type="text" id="password-input" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required placeholder="123456" style="letter-spacing:.25em;font-size:1.2rem;text-align:center"/>
         </div>
         <button type="submit" class="btn btn-primary" id="login-btn">
           <span data-i18n="loginBtn">Sign in</span>
