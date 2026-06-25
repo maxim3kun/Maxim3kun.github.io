@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
-const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -461,69 +460,3 @@ app.listen(PORT, () => {
   console.log(`MaximeGPT site running on port ${PORT}`);
 });
 
-// ── DISCORD BOT CLIENT — écoute !dashboard admin ──────────────────────────────
-
-const discordBot = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
-});
-
-const processedMessages = new Set();
-
-discordBot.on('messageCreate', async (message) => {
-  if (message.author.bot) return;
-  if (!message.content.toLowerCase().startsWith('!dashboard admin')) return;
-  if (processedMessages.has(message.id)) return;
-  processedMessages.add(message.id);
-  setTimeout(() => processedMessages.delete(message.id), 60_000);
-
-  const isOwner = message.guild?.ownerId === message.author.id;
-
-  if (!isOwner) {
-    await message.reply('👑 Only the server owner can access the dashboard.').catch(() => {});
-    return;
-  }
-
-  // Code 6 chiffres usage unique
-  const code      = String(Math.floor(100000 + Math.random() * 900000));
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 min
-
-  const dashUrl = process.env.DASHBOARD_URL || 'https://www.maximegpt.com/dashboard';
-
-  try {
-    await BotLoginCode.findOneAndUpdate(
-      { discordId: message.author.id },
-      { discordId: message.author.id, discordUsername: message.author.username, code, expiresAt },
-      { upsert: true, new: true }
-    );
-
-    await sendDiscordDM(message.author.id, {
-      color: 0x7c3aed,
-      title: '🔐 MaximeGPT Dashboard — Login Code',
-      description:
-        `Log in to the dashboard with your credentials:\n\n` +
-        `🔗 **Link:** ${dashUrl}\n\n` +
-        `👤 **Username:** \`${message.author.username}\`\n` +
-        `🔑 **Code:** # \`${code}\`\n\n` +
-        `⚠️ This code expires in **5 minutes** and can only be used once.\n` +
-        `Do not share it with anyone.`,
-      footer: { text: 'MaximeGPT Admin Dashboard' }
-    });
-
-    await message.reply('✅ Login link and code sent via DM! The code expires in **5 minutes**.').catch(() => {});
-  } catch (err) {
-    console.error('Bot login code error:', err.message);
-    await message.reply(`❌ Failed to send DM — make sure the bot is allowed to message you directly.`).catch(() => {});
-  }
-});
-
-if (process.env.DISCORD_BOT_TOKEN) {
-  discordBot.login(process.env.DISCORD_BOT_TOKEN)
-    .then(() => console.log('Discord bot client (dashboard) connected'))
-    .catch(err => console.error('Discord bot login error:', err.message));
-} else {
-  console.warn('DISCORD_BOT_TOKEN not set — !dashboard admin disabled');
-}
